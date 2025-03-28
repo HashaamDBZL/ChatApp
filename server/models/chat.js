@@ -13,8 +13,8 @@ const Chat = sequelize.define(
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: "Users", // References the Users table
-        key: "id", // Uses the primary key of the Users table
+        model: "Users",
+        key: "id",
       },
       onDelete: "CASCADE",
     },
@@ -22,8 +22,8 @@ const Chat = sequelize.define(
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: "Users", // References the Users table
-        key: "id", // Uses the primary key of the Users table
+        model: "Users",
+        key: "id",
       },
       onDelete: "CASCADE",
     },
