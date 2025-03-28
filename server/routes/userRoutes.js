@@ -1,4 +1,4 @@
-const { User } = require("../models/user.js");
+const { User } = require("../models/User.js");
 const express = require("express");
 
 const router = express.Router();
@@ -8,14 +8,16 @@ router.post("/users", async (req, res) => {
   try {
     const { name, image, about, number } = req.body;
     const newUser = await User.create({
-      Name: name,
-      Image: image,
-      About: about,
-      Number: number,
+      name: name,
+      image: image,
+      about: about,
+      number: number,
     });
 
     res.status(201).json(newUser);
   } catch (error) {
+    console.error("Error creating user:", error); // Log the error
+
     res.status(500).json({ error: "Failed to create user" });
   }
 });

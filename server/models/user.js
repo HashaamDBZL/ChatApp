@@ -19,7 +19,7 @@ const User = sequelize.define(
       unique: true,
     },
     about: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
     },
     number: {
       type: DataTypes.STRING,

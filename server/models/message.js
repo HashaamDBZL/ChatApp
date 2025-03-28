@@ -11,12 +11,30 @@ const Message = sequelize.define(
     },
     chatId: {
       type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: "Chats", // 👈 References the Chats table
+        key: "id", // 👈 Uses the primary key of the Chats table
+      },
+      onDelete: "CASCADE", // If a chat is deleted, delete related messages
     },
     senderId: {
       type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: "Users", // 👈 References the Users table
+        key: "id",
+      },
+      onDelete: "CASCADE",
     },
     recieverId: {
       type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: "Users", // 👈 References the Users table
+        key: "id",
+      },
+      onDelete: "CASCADE",
     },
     messageContent: {
       type: DataTypes.STRING,

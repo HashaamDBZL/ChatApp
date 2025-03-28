@@ -12,10 +12,20 @@ const Chat = sequelize.define(
     user1Id: {
       type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: "Users", // References the Users table
+        key: "id", // Uses the primary key of the Users table
+      },
+      onDelete: "CASCADE",
     },
     user2Id: {
       type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: "Users", // References the Users table
+        key: "id", // Uses the primary key of the Users table
+      },
+      onDelete: "CASCADE",
     },
     lastMessageId: {
       type: DataTypes.UUID,
