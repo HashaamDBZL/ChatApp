@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ProfilePicture from "./profilePicture";
 import { formatDateTimeString } from "~/utils/dateUtils";
 import StatusIcon from "./statusIcon";
+import ChatMessages from "./chatMessage";
 
 interface ChatResponse {
   chatId: string;
@@ -14,6 +15,14 @@ interface ChatResponse {
 
 export function Main() {
   const [chats, setChats] = useState<ChatResponse[]>([]);
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+  const [isChatSelected, setIsChatSelected] = useState(false); // New state variable
+
+  const handleChatClick = (chatId: string) => {
+    setSelectedChatId(chatId);
+    setIsChatSelected(true); // Set to true when a chat is clicked
+  };
+
   useEffect(() => {
     const getData = async () => {
       try {
@@ -41,6 +50,10 @@ export function Main() {
     getData();
   }, []);
 
+  const chatMessagesBackgroundColor = isChatSelected
+    ? "bg-white"
+    : "bg-gray-300";
+
   return (
     <div className="flex h-[100vh]">
       <div className="w-4/12 h-full flex-col">
@@ -51,7 +64,8 @@ export function Main() {
           {chats.map((item) => (
             <div
               key={item.chatId}
-              className="p-4 border-b border-gray-300 cursor-pointer hover:bg-gray-300 flex  items-center"
+              className="p-4 border-b border-gray-300 cursor-pointer hover:bg-gray-300 flex items-center"
+              onClick={() => handleChatClick(item.chatId)}
             >
               <ProfilePicture imageUrl={item.otherUserImage} />
               <div className="flex flex-col flex-grow">
@@ -63,14 +77,22 @@ export function Main() {
                 </div>
                 <div className="flex">
                   <StatusIcon messageStatus={item.messageStatus} />
-                  <div className="text-sm">{item.lastMessageContent}</div>
+                  <div
+                    className="text-sm truncate overflow-hidden whitespace-nowrap"
+                    title={item.lastMessageContent ?? undefined}
+                  >
+                    {item.lastMessageContent}
+                  </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
       </div>
-      <div className="w-8/12 bg-indigo-700 h-full"></div>
+      <div className={`w-8/12 h-full ${chatMessagesBackgroundColor}`}>
+        {" "}
+        <ChatMessages chatId={selectedChatId} />
+      </div>
     </div>
   );
 }
