@@ -1,5 +1,6 @@
 const { User } = require("../models/User.js");
 const express = require("express");
+const { getAllUsers } = require("../controllers/userController.js");
 
 const router = express.Router();
 
@@ -21,5 +22,8 @@ router.post("/users", async (req, res) => {
     res.status(500).json({ error: "Failed to create user" });
   }
 });
+
+//GET: Get all users
+router.get("/users/all", getAllUsers);
 
 module.exports = router;

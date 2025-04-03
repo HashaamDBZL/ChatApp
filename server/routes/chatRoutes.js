@@ -3,6 +3,7 @@ const { Chat } = require("../models/chat.js");
 const {
   getChatsWithLatestMessageAndUserData,
   getMessagesInChat,
+  getAllChats,
 } = require("../controllers/chatController"); // Adjust path if needed.
 const router = express.Router();
 
@@ -51,5 +52,7 @@ router.post("/:chatId/messages", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch messages." });
   }
 });
+
+router.get("/chats/all", getAllChats);
 
 module.exports = router;

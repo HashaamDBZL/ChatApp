@@ -81,4 +81,29 @@ async function getMessagesInChat(chatId, loggedInUserId) {
   }
 }
 
-module.exports = { getChatsWithLatestMessageAndUserData, getMessagesInChat };
+async function getAllChats(req, res) {
+  try {
+    const chats = await Chat.findAll({
+      include: [
+        { model: User, as: "user1", attributes: ["id", "name", "image"] },
+        { model: User, as: "user2", attributes: ["id", "name", "image"] },
+        {
+          model: Message,
+          as: "LastMessage",
+          attributes: ["id", "messageContent", "createdAt"],
+        },
+      ],
+      order: [[{ model: Message, as: "LastMessage" }, "createdAt", "DESC"]],
+    });
+    res.json(chats);
+  } catch (error) {
+    console.error("Error fetching all chats:", error);
+    res.status(500).json({ error: "Failed to fetch chats." });
+  }
+}
+
+module.exports = {
+  getChatsWithLatestMessageAndUserData,
+  getMessagesInChat,
+  getAllChats,
+};

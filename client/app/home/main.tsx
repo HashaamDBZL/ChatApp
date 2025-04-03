@@ -12,7 +12,7 @@ interface ChatResponse {
   otherUserImage: string | null;
 }
 
-export function Welcome() {
+export function Main() {
   const [chats, setChats] = useState<ChatResponse[]>([]);
   useEffect(() => {
     const getData = async () => {
