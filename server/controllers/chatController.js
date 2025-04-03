@@ -58,4 +58,27 @@ async function getChatsWithLatestMessageAndUserData(loggedInUserId) {
   }
 }
 
-module.exports = { getChatsWithLatestMessageAndUserData };
+async function getMessagesInChat(chatId, loggedInUserId) {
+  try {
+    const messages = await Message.findAll({
+      where: { chatId: chatId },
+      attributes: ["messageContent", "createdAt", "senderId"],
+      order: [["createdAt", "ASC"]], // Order messages by timestamp
+    });
+
+    const messageList = messages.map((message) => {
+      return {
+        messageContent: message.messageContent,
+        messageTimestamp: message.createdAt,
+        sentByMe: message.senderId === loggedInUserId,
+      };
+    });
+
+    return messageList;
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    return null;
+  }
+}
+
+module.exports = { getChatsWithLatestMessageAndUserData, getMessagesInChat };

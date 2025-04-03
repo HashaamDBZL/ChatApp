@@ -2,6 +2,7 @@ const express = require("express");
 const { Chat } = require("../models/chat.js");
 const {
   getChatsWithLatestMessageAndUserData,
+  getMessagesInChat,
 } = require("../controllers/chatController"); // Adjust path if needed.
 const router = express.Router();
 
@@ -32,6 +33,22 @@ router.post("/sidebar", async (req, res) => {
     res.json(chatData);
   } else {
     res.status(500).json({ error: "Failed to fetch chats." });
+  }
+});
+
+router.post("/:chatId/messages", async (req, res) => {
+  const chatId = req.params.chatId;
+  const loggedInUserId = req.body.userId; // Or req.user.id if using auth headers
+
+  if (!chatId || !loggedInUserId) {
+    return res.status(400).json({ error: "chatId and userId are required." });
+  }
+
+  const messages = await getMessagesInChat(chatId, loggedInUserId);
+  if (messages) {
+    res.json(messages);
+  } else {
+    res.status(500).json({ error: "Failed to fetch messages." });
   }
 });
 
