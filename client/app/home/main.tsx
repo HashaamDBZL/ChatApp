@@ -16,11 +16,21 @@ interface ChatResponse {
 export function Main() {
   const [chats, setChats] = useState<ChatResponse[]>([]);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+  const [selectedUserName, setSelectedUserName] = useState<string | null>(null);
+  const [selectedUserImage, setSelectedUserImage] = useState<string | null>(
+    null
+  );
+
   const [isChatSelected, setIsChatSelected] = useState(false); // New state variable
 
-  const handleChatClick = (chatId: string) => {
+  const handleChatClick = (
+    chatId: string,
+    userName: string,
+    userImage: string
+  ) => {
     setSelectedChatId(chatId);
-    setIsChatSelected(true); // Set to true when a chat is clicked
+    setSelectedUserName(userName);
+    setSelectedUserImage(userImage);
   };
 
   useEffect(() => {
@@ -65,7 +75,13 @@ export function Main() {
             <div
               key={item.chatId}
               className="p-4 border-b border-gray-300 cursor-pointer hover:bg-gray-300 flex items-center"
-              onClick={() => handleChatClick(item.chatId)}
+              onClick={() =>
+                handleChatClick(
+                  item.chatId,
+                  item.otherUserName!,
+                  item.otherUserImage!
+                )
+              }
             >
               <ProfilePicture imageUrl={item.otherUserImage} />
               <div className="flex flex-col flex-grow">
@@ -90,8 +106,13 @@ export function Main() {
         </div>
       </div>
       <div className={`w-8/12 h-full ${chatMessagesBackgroundColor}`}>
-        {" "}
-        <ChatMessages chatId={selectedChatId} />
+        {selectedChatId && (
+          <ChatMessages
+            chatId={selectedChatId}
+            userName={selectedUserName}
+            userImage={selectedUserImage}
+          />
+        )}
       </div>
     </div>
   );
