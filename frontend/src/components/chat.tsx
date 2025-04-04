@@ -33,7 +33,7 @@ function Chat() {
     const getData = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3000/api/chats/chats/sidebar",
+          "http://localhost:3000/api/chats/sidebar",
           {
             method: "POST",
             headers: {
@@ -41,7 +41,7 @@ function Chat() {
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-              userId: "31621467-2801-40c1-9296-9dfdaefc81db",
+              userId: "4d2ba8c2-c6ba-41df-a1eb-627694671a64",
             }),
           }
         );
@@ -93,7 +93,6 @@ function Chat() {
                 )
               }
             >
-              console.log(item)
               <ProfilePicture imageUrl={item.otherUserImage} />
               <div className="flex flex-col flex-grow">
                 <div className="flex justify-between">

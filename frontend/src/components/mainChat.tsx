@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import InputComponent from "./input";
 import React from "react";
+import { useAuth } from "../contexts/AuthContexts";
 
 interface Message {
   messageContent: string;
@@ -12,7 +13,8 @@ interface props {
 }
 
 const MainChat = ({ chatId }: props) => {
-  const loggedInUserId = "31621467-2801-40c1-9296-9dfdaefc81db"; // Hardcoded
+  const { token } = useAuth();
+  const loggedInUserId = "4d2ba8c2-c6ba-41df-a1eb-627694671a64"; // Hardcoded
 
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -22,11 +24,12 @@ const MainChat = ({ chatId }: props) => {
 
       try {
         const response = await fetch(
-          `http://localhost:3000/api/${chatId}/messages`,
+          `http://localhost:3000/api/chats/${chatId}/messages`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ userId: loggedInUserId }),
           }
@@ -50,7 +53,7 @@ const MainChat = ({ chatId }: props) => {
   const sendMessage = () => {};
 
   return (
-    <div className="bg-red-50 h-full flex flex-col justify-between pb-2">
+    <div className=" h-full flex flex-col justify-between pb-2">
       {/* Messages container with justify-end to keep messages at the bottom initially */}
       <div className="overflow-y-auto flex-grow flex flex-col justify-end">
         {messages.map((message, index) => (
