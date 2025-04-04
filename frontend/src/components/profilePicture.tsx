@@ -1,3 +1,5 @@
+import React from "react";
+
 function ProfilePicture({ imageUrl }: { imageUrl: string | null | undefined }) {
   return (
     <div

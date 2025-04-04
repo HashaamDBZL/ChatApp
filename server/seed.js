@@ -23,6 +23,8 @@ const seedDatabase = async () => {
             "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTseI-YaVjLJHwgKC9kCuk195wy1_w40g-FGqrFLZMeRuM8XYGJ-rqFgQX5RPrx_CcD-cIiddkjZIekbd18LLT53aHMm2Br7EGro21MIw",
           about: "Theoretical Physicist",
           number: "19009909991",
+          email: "albert@gmail.com",
+          password: "admin",
         },
         {
           name: "Steve Jobs",
@@ -30,6 +32,8 @@ const seedDatabase = async () => {
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpav1iIAD5EfBHc-QxBecROMSg5a8jouIN5Q&s",
           about: "A Tech Inventor",
           number: "19999999991",
+          email: "steve@gmail.com",
+          password: "admin",
         },
         {
           name: "Thomas Edison",
@@ -37,6 +41,8 @@ const seedDatabase = async () => {
             "https://cdn.britannica.com/55/79855-159-1C729E45/Thomas-Alva-Edison-man.jpg",
           about: "A Copycat",
           number: "00000111111",
+          email: "thomas@gmail.com",
+          password: "admin",
         },
         {
           name: "Nikola Tesla",
@@ -44,6 +50,8 @@ const seedDatabase = async () => {
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbPP_9NLRql-UrrXa0vxWq_8r88jV120aCfw&s",
           about: "A Genius",
           number: "00000000000",
+          email: "nikola@gmail.com",
+          password: "admin",
         },
         {
           name: "Christiano Ronaldo",
@@ -51,6 +59,8 @@ const seedDatabase = async () => {
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQF8CYve4Ez3r5zBUWhNL_vuO9P2syDULltnQ&s",
           about: "A footballer",
           number: "03116370670",
+          email: "christiano@gmail.com",
+          password: "admin",
         },
       ],
       { ignoreDuplicates: true }

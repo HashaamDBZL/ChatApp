@@ -21,24 +21,22 @@ function App() {
   };
 
   return (
-    <div>
-      <AuthProvider>
-        <Routes>
-          <Route
-            path="/"
-            element={token ? <Chat /> : <Navigate to="/login" replace />}
-          />
-          <Route
-            path="/login"
-            element={<Login onAuthSuccess={handleAuthChange} />}
-          />
-          <Route
-            path="/signup"
-            element={<Signup onAuthSuccess={handleAuthChange} />}
-          />
-        </Routes>
-      </AuthProvider>
-    </div>
+    <AuthProvider>
+      <Routes>
+        <Route
+          path="/"
+          element={token ? <Chat /> : <Navigate to="/login" replace />}
+        />
+        <Route
+          path="/login"
+          element={<Login onAuthSuccess={handleAuthChange} />}
+        />
+        <Route
+          path="/signup"
+          element={<Signup onAuthSuccess={handleAuthChange} />}
+        />
+      </Routes>
+    </AuthProvider>
   );
 }
 

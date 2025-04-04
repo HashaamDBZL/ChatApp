@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
-import ProfilePicture from "../../../frontend/src/components/profilePicture";
-import { formatDateTimeString } from "~/utils/dateUtils";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContexts"; // Adjust the path
+import ProfilePicture from "./profilePicture";
+import { formatDateTimeString } from "../utils/dateUtils";
 import StatusIcon from "./statusIcon";
 import ChatMessages from "./chatMessage";
 
@@ -13,7 +14,8 @@ interface ChatResponse {
   otherUserImage: string | null;
 }
 
-export function Main() {
+function Chat() {
+  const { logout, token } = useAuth();
   const [chats, setChats] = useState<ChatResponse[]>([]);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string | null>(null);
@@ -23,28 +25,26 @@ export function Main() {
 
   const [isChatSelected, setIsChatSelected] = useState(false); // New state variable
 
-  const handleChatClick = (
-    chatId: string,
-    userName: string,
-    userImage: string
-  ) => {
-    setSelectedChatId(chatId);
-    setSelectedUserName(userName);
-    setSelectedUserImage(userImage);
+  const handleLogoutClick = () => {
+    logout();
   };
 
   useEffect(() => {
     const getData = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/sidebar", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId: "31621467-2801-40c1-9296-9dfdaefc81db",
-          }),
-        });
+        const response = await fetch(
+          "http://localhost:3000/api/chats/chats/sidebar",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              userId: "31621467-2801-40c1-9296-9dfdaefc81db",
+            }),
+          }
+        );
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -60,18 +60,28 @@ export function Main() {
     getData();
   }, []);
 
+  const handleChatClick = (
+    chatId: string,
+    userName: string,
+    userImage: string
+  ) => {
+    setSelectedChatId(chatId);
+    setSelectedUserName(userName);
+    setSelectedUserImage(userImage);
+  };
+
   const chatMessagesBackgroundColor = isChatSelected
     ? "bg-white"
     : "bg-gray-300";
 
   return (
-    <div className="flex h-[100vh]">
-      <div className="w-4/12 h-full flex-col">
+    <div className="flex h-[100vh] ">
+      <div className="w-4/12 h-full flex-col ">
         <div className="h-24 flex items-center text-start px-12 text-xl font-bold shrink-0">
           Chat
         </div>
         <div className="flex flex-col bg-gray-200 flex-1 overflow-y-auto">
-          {chats.map((item) => (
+          {chats.map((item, index) => (
             <div
               key={item.chatId}
               className="p-4 border-b border-gray-300 cursor-pointer hover:bg-gray-300 flex items-center"
@@ -83,6 +93,7 @@ export function Main() {
                 )
               }
             >
+              console.log(item)
               <ProfilePicture imageUrl={item.otherUserImage} />
               <div className="flex flex-col flex-grow">
                 <div className="flex justify-between">
@@ -117,3 +128,5 @@ export function Main() {
     </div>
   );
 }
+
+export default Chat;
