@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 const chatRoutes = require("./routes/chatRoutes.js");
 const userRoutes = require("./routes/userRoutes.js");
 const messageRoutes = require("./routes/messageRoutes.js");
+const authRoutes = require("./routes/authRoutes.js");
+const authMiddleware = require("./middleware/authMiddleware.ts");
 
 const app = express();
 
@@ -16,9 +18,10 @@ app.use(
   })
 );
 
-app.use("/api", userRoutes);
-app.use("/api", chatRoutes);
-app.use("/api", messageRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/users", authMiddleware, userRoutes);
+app.use("/api/chats", authMiddleware, chatRoutes);
+app.use("/api/messages", authMiddleware, messageRoutes);
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
