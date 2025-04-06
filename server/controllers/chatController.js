@@ -47,6 +47,7 @@ async function getChatsWithLatestMessageAndUserData(loggedInUserId) {
           messageTimestamp: lastMessage?.createdAt || null,
           otherUserName: otherUser?.name || null,
           otherUserImage: otherUser?.image || null,
+          otherUserId: otherUser?.id,
         };
       })
     );

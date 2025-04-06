@@ -6,16 +6,22 @@ interface ChatMessagesProps {
   chatId: string | null;
   userImage: string | null;
   userName: string | null;
+  otherUserId: string | null;
 }
 
-function ChatMessages({ chatId, userImage, userName }: ChatMessagesProps) {
+function ChatMessages({
+  chatId,
+  userImage,
+  userName,
+  otherUserId,
+}: ChatMessagesProps) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex h-24 w-full items-center px-12 bg-gray-100">
         <ProfilePicture imageUrl={userImage} />
         <div>{userName}</div>
       </div>
-      <MainChat chatId={chatId} />
+      <MainChat chatId={chatId} otherUserId={otherUserId} />
     </div>
   );
 }

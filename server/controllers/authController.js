@@ -35,7 +35,7 @@ const login = async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET); // Generate JWT
-    res.json({ token });
+    res.json({ token, userId: user.id });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

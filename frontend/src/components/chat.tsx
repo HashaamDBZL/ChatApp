@@ -12,6 +12,7 @@ interface ChatResponse {
   messageTimestamp: string | null;
   otherUserName: string | null;
   otherUserImage: string | null;
+  otherUserId: string | null;
 }
 
 function Chat() {
@@ -19,11 +20,13 @@ function Chat() {
   const [chats, setChats] = useState<ChatResponse[]>([]);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserImage, setSelectedUserImage] = useState<string | null>(
     null
   );
 
-  const [isChatSelected, setIsChatSelected] = useState(false); // New state variable
+  const [isChatSelected, setIsChatSelected] = useState(false);
+  const { userId: loggedInUserId } = useAuth();
 
   const handleLogoutClick = () => {
     logout();
@@ -41,7 +44,7 @@ function Chat() {
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-              userId: "4d2ba8c2-c6ba-41df-a1eb-627694671a64",
+              userId: loggedInUserId,
             }),
           }
         );
@@ -63,11 +66,13 @@ function Chat() {
   const handleChatClick = (
     chatId: string,
     userName: string,
-    userImage: string
+    userImage: string,
+    userId: string
   ) => {
     setSelectedChatId(chatId);
     setSelectedUserName(userName);
     setSelectedUserImage(userImage);
+    setSelectedUserId(userId);
   };
 
   const chatMessagesBackgroundColor = isChatSelected
@@ -89,7 +94,8 @@ function Chat() {
                 handleChatClick(
                   item.chatId,
                   item.otherUserName!,
-                  item.otherUserImage!
+                  item.otherUserImage!,
+                  item.otherUserId!
                 )
               }
             >
@@ -121,6 +127,7 @@ function Chat() {
             chatId={selectedChatId}
             userName={selectedUserName}
             userImage={selectedUserImage}
+            otherUserId={selectedUserId}
           />
         )}
       </div>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 interface InputComponentProps {
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string, clearInput: () => void) => void;
 }
 
 function InputComponent({ onSendMessage }: InputComponentProps) {
@@ -13,8 +13,7 @@ function InputComponent({ onSendMessage }: InputComponentProps) {
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter" && message.trim() !== "") {
-      onSendMessage(message.trim());
-      setMessage("");
+      onSendMessage(message.trim(), () => setMessage("")); // Pass a function to clear input
     }
   };
 

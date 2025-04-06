@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import InputComponent from "./input";
 import React from "react";
 import { useAuth } from "../contexts/AuthContexts";
+import { formatDateTimeString } from "../utils/dateUtils";
 
 interface Message {
   messageContent: string;
@@ -10,12 +11,11 @@ interface Message {
 }
 interface props {
   chatId: string | null;
+  otherUserId: string | null;
 }
 
-const MainChat = ({ chatId }: props) => {
-  const { token } = useAuth();
-  const loggedInUserId = "4d2ba8c2-c6ba-41df-a1eb-627694671a64"; // Hardcoded
-
+const MainChat = ({ chatId, otherUserId }: props) => {
+  const { token, userId: loggedInUserId } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
@@ -49,24 +49,101 @@ const MainChat = ({ chatId }: props) => {
     fetchChatMessages();
   }, [chatId]);
 
-  //Add implementation
-  const sendMessage = () => {};
+  const sendMessage = async (message: string, clearInput: () => void) => {
+    if (!token) {
+      console.error("No token available");
+      return;
+    }
+
+    if (!loggedInUserId) {
+      console.error("Logged-in user ID not available");
+      return;
+    }
+
+    if (!chatId) {
+      console.warn("Chat ID is not yet set");
+      return;
+    }
+
+    if (!otherUserId) {
+      console.warn("Receiver ID (other user in chat) is not yet set");
+      return;
+    }
+
+    if (!message.trim()) {
+      return; // Don't send empty messages
+    }
+
+    const messageData = {
+      chatId: chatId,
+      recieverId: otherUserId,
+      senderId: loggedInUserId,
+      messageContent: message.trim(),
+      status: "sent",
+    };
+    console.log("Message data =>", messageData);
+
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/messages/messages",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(messageData),
+        }
+      );
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log("Message sent successfully:", responseData);
+
+        // Clear the input field
+        clearInput();
+
+        // Update messages list immediately for UI responsiveness
+        // setMessages((prevMessages) => [
+        //   ...prevMessages,
+        //   {
+        //     messageContent: messageData.messageContent,
+        //     messageTimestamp: new Date().toISOString(), // Use backend timestamp if available
+        //     sentByMe: true,
+        //   },
+        // ]);
+      } else {
+        console.error(
+          "Failed to send message:",
+          response.status,
+          await response.text()
+        );
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
 
   return (
-    <div className=" h-full flex flex-col justify-between pb-2">
-      {/* Messages container with justify-end to keep messages at the bottom initially */}
-      <div className="overflow-y-auto flex-grow flex flex-col justify-end">
+    // <div className="">lol</div>
+
+    <div className=" flex flex-col justify-end overflow-y-auto">
+      <div className=" flex-grow flex flex-col overflow-y-scroll">
         {messages.map((message, index) => (
           <div key={index} className="mb-2">
             <p>
               {message.sentByMe ? "You: " : "Other: "}
               {message.messageContent}
             </p>
-            <small>{message.messageTimestamp}</small>
+            <small>{formatDateTimeString(message.messageTimestamp)}</small>
           </div>
         ))}
       </div>
-      <InputComponent onSendMessage={sendMessage} />
+      <InputComponent
+        onSendMessage={(message, clearInput) =>
+          sendMessage(message, clearInput)
+        }
+      />
     </div>
   );
 };

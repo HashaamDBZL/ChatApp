@@ -31,6 +31,7 @@ export default function Login() {
         if (data && data.token) {
           console.log("Navigating elsewhere");
           localStorage.setItem("token", data.token);
+          localStorage.setItem("userId", data.userId);
         } else {
           setError("Login successful, but no token received.");
         }
