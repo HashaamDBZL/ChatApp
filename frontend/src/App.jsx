@@ -5,9 +5,11 @@ import Signup from "./components/signup";
 import Chat from "./components/chat";
 import { AuthProvider } from "./contexts/AuthContexts";
 import "./App.css";
+import socket from "./socket";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token")); // Initial check
+  socket.connect();
 
   const handleAuthChange = (newToken) => {
     setToken(newToken);

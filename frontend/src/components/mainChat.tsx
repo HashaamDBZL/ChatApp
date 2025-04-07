@@ -3,8 +3,11 @@ import InputComponent from "./input";
 import React from "react";
 import { useAuth } from "../contexts/AuthContexts";
 import { formatDateTimeString } from "../utils/dateUtils";
+import socket from "../socket";
+import { io } from "socket.io-client";
 
 interface Message {
+  id: string;
   messageContent: string;
   messageTimestamp: string;
   sentByMe: boolean;
@@ -17,6 +20,43 @@ interface props {
 const MainChat = ({ chatId, otherUserId }: props) => {
   const { token, userId: loggedInUserId } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    if (!loggedInUserId || !chatId) return;
+
+    socket.emit("join", loggedInUserId);
+    console.log("✅ Joined room: user_" + loggedInUserId);
+
+    const handleMessage = (message: any) => {
+      if (message.chatId === chatId) {
+        console.log("📨 Checking chatId", message.chatId, chatId);
+        console.log("📨 New message received:", message);
+
+        setMessages((prev) => {
+          const alreadyExists = prev.some((m) => m.id === message.id); // Avoid duplicate
+          if (alreadyExists) return prev;
+
+          return [
+            ...prev,
+            {
+              ...message,
+              sentByMe: message.senderId === loggedInUserId,
+            },
+          ];
+        });
+        console.log("Updated messages after receiving new message:", messages);
+      }
+    };
+
+    socket.on("new_message", (message) => {
+      console.log("📩 New message received:", message);
+      handleMessage(message);
+    });
+
+    return () => {
+      socket.off("new_message", handleMessage);
+    };
+  }, [loggedInUserId, chatId]);
 
   useEffect(() => {
     const fetchChatMessages = async () => {
@@ -71,7 +111,7 @@ const MainChat = ({ chatId, otherUserId }: props) => {
     }
 
     if (!message.trim()) {
-      return; // Don't send empty messages
+      return;
     }
 
     const messageData = {
@@ -97,21 +137,11 @@ const MainChat = ({ chatId, otherUserId }: props) => {
       );
 
       if (response.ok) {
-        const responseData = await response.json();
-        console.log("Message sent successfully:", responseData);
+        const savedMessage = await response.json();
 
-        // Clear the input field
+        console.log("Message sent successfully:", savedMessage);
+
         clearInput();
-
-        // Update messages list immediately for UI responsiveness
-        // setMessages((prevMessages) => [
-        //   ...prevMessages,
-        //   {
-        //     messageContent: messageData.messageContent,
-        //     messageTimestamp: new Date().toISOString(), // Use backend timestamp if available
-        //     sentByMe: true,
-        //   },
-        // ]);
       } else {
         console.error(
           "Failed to send message:",
@@ -124,9 +154,9 @@ const MainChat = ({ chatId, otherUserId }: props) => {
     }
   };
 
-  return (
-    // <div className="">lol</div>
+  console.log("Rendering messages:", messages);
 
+  return (
     <div className=" flex flex-col justify-end overflow-y-auto">
       <div className=" flex-grow flex flex-col overflow-y-scroll">
         {messages.map((message, index) => (

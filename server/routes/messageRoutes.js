@@ -5,6 +5,7 @@ const {
   getAllMessages,
   updateMessageSenderAndReceiver,
 } = require("../controllers/messageController.js");
+const { redisPublisher } = require("../config/redis");
 
 const router = express.Router();
 
@@ -22,16 +23,11 @@ router.post("/messages", async (req, res) => {
       status: status || "sent",
     });
 
-    console.log("New message created:", newMessage);
-
+    redisPublisher.publish("chat_channel", JSON.stringify(newMessage));
     const messageId = newMessage.id; // Correct way to get the ID
-    console.log("New message ID:", messageId); // Log the correct ID
-
-    console.log("chatId to update:", chatId);
 
     // Step 2: Update lastMessage_id in the Chat table
     await Chat.update({ lastMessageId: messageId }, { where: { id: chatId } });
-    console.log("Chat updated successfully");
 
     res.status(201).json(newMessage);
   } catch (error) {

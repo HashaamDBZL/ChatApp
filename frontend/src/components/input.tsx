@@ -18,7 +18,7 @@ function InputComponent({ onSendMessage }: InputComponentProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg overflow-hidden border-solid border-black border-1">
+    <div className="bg-white rounded-lg overflow-hidden border-solid border-black border-1 h-18 py-2">
       <input
         type="text"
         placeholder="Type a message"
