@@ -18,14 +18,14 @@ function InputComponent({ onSendMessage }: InputComponentProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg overflow-hidden border-solid border-black border-1 h-18 py-2">
+    <div className="bg-white rounded-lg overflow-hidden border-solid border-black border-1 w-[85%] mx-auto my-2 h-[40px] flex items-center">
       <input
         type="text"
         placeholder="Type a message"
         value={message}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
-        className="w-full h-10 px-4 py-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="h-10 px-4 py-2 bg-transparent focus:outline-none"
       />
     </div>
   );

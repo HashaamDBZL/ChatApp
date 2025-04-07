@@ -2,10 +2,11 @@ export function formatDateTimeString(dateTimeString: string): string {
   const date = new Date(dateTimeString);
   const now = new Date();
 
-  const isSameDay =
-    date.getFullYear() === now.getFullYear() &&
-    date.getMonth() === now.getMonth() &&
-    date.getDate() === now.getDate();
+  // Strip time and compare just the date (ignoring time)
+  const startOfToday = new Date(now.setHours(0, 0, 0, 0));
+  const startOfMessageDay = new Date(date.setHours(0, 0, 0, 0));
+
+  const isSameDay = startOfMessageDay.getTime() === startOfToday.getTime();
 
   if (isSameDay) {
     let hours = date.getHours();
@@ -17,25 +18,24 @@ export function formatDateTimeString(dateTimeString: string): string {
     return `${hours}:${formattedMinutes} ${ampm}`;
   }
 
-  const diffInDays = Math.floor(
-    (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
-  );
+  const diffInTime = now.getTime() - date.getTime();
+  const diffInDays = Math.floor(diffInTime / (1000 * 60 * 60 * 24));
 
-  if (diffInDays >= 1) {
-    if (diffInDays < 2) {
-      return "Yesterday";
-    } else if (diffInDays < 7) {
-      const daysOfWeek = [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ];
-      return daysOfWeek[date.getDay()];
-    }
+  if (diffInDays === 1) {
+    return "Yesterday"; // If it's exactly one day ago
+  }
+
+  if (diffInDays < 7) {
+    const daysOfWeek = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    return daysOfWeek[date.getDay()];
   }
 
   const day = date.getDate();

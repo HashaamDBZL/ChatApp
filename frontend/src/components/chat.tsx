@@ -5,7 +5,7 @@ import { formatDateTimeString } from "../utils/dateUtils";
 import StatusIcon from "./statusIcon";
 import ChatMessages from "./chatMessage";
 
-interface ChatResponse {
+export interface ChatResponse {
   chatId: string;
   lastMessageContent: string | null;
   messageStatus: string | null;
@@ -13,6 +13,7 @@ interface ChatResponse {
   otherUserName: string | null;
   otherUserImage: string | null;
   otherUserId: string | null;
+  hasUnread?: boolean;
 }
 
 function Chat() {
@@ -24,6 +25,29 @@ function Chat() {
   const [selectedUserImage, setSelectedUserImage] = useState<string | null>(
     null
   );
+
+  const handleIncomingMessage = (message: {
+    chatId: string;
+    messageContent: string;
+    messageTimestamp: string;
+    status: string;
+  }) => {
+    const { chatId, messageContent, messageTimestamp, status } = message;
+
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat.chatId === chatId
+          ? {
+              ...chat,
+              lastMessageContent: messageContent,
+              messageTimestamp: messageTimestamp,
+              messageStatus: status,
+              hasUnread: chatId !== selectedChatId, // mark unread only if not current chat
+            }
+          : chat
+      )
+    );
+  };
 
   const [isChatSelected, setIsChatSelected] = useState(false);
   const { userId: loggedInUserId } = useAuth();
@@ -73,6 +97,11 @@ function Chat() {
     setSelectedUserName(userName);
     setSelectedUserImage(userImage);
     setSelectedUserId(userId);
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat.chatId === chatId ? { ...chat, hasUnread: false } : chat
+      )
+    );
   };
 
   const chatMessagesBackgroundColor = isChatSelected
@@ -85,39 +114,49 @@ function Chat() {
         <div className="h-24 flex items-center text-start px-12 text-xl font-bold shrink-0">
           Chat
         </div>
-        <div className="flex flex-col bg-gray-200 flex-1 overflow-y-auto">
+        <div className="flex flex-col flex-1 overflow-y-auto">
           {chats.map((item, index) => (
-            <div
-              key={item.chatId}
-              className="p-4 border-b border-gray-300 cursor-pointer hover:bg-gray-300 flex items-center"
-              onClick={() =>
-                handleChatClick(
-                  item.chatId,
-                  item.otherUserName!,
-                  item.otherUserImage!,
-                  item.otherUserId!
-                )
-              }
-            >
-              <ProfilePicture imageUrl={item.otherUserImage} />
-              <div className="flex flex-col flex-grow">
-                <div className="flex justify-between">
-                  <div className="text-md">{item.otherUserName}</div>
-                  <div className="text-xs">
-                    {formatDateTimeString(item.messageTimestamp!)}
+            <>
+              <div
+                key={item.chatId}
+                className="p-4 cursor-pointer hover:bg-gray-100 flex items-center"
+                onClick={() =>
+                  handleChatClick(
+                    item.chatId,
+                    item.otherUserName!,
+                    item.otherUserImage!,
+                    item.otherUserId!
+                  )
+                }
+              >
+                <ProfilePicture imageUrl={item.otherUserImage} />
+                <div className="flex flex-col flex-grow">
+                  <div className="flex justify-between">
+                    <div className="text-md">{item.otherUserName}</div>
+
+                    <div className="text-xs">
+                      {formatDateTimeString(item.messageTimestamp!)}
+                    </div>
                   </div>
-                </div>
-                <div className="flex">
-                  <StatusIcon messageStatus={item.messageStatus} />
-                  <div
-                    className="text-sm truncate overflow-hidden whitespace-nowrap"
-                    title={item.lastMessageContent ?? undefined}
-                  >
-                    {item.lastMessageContent}
+                  <div className="flex">
+                    <StatusIcon messageStatus={item.messageStatus} />
+
+                    <div
+                      className="text-sm truncate overflow-hidden whitespace-nowrap"
+                      title={item.lastMessageContent ?? undefined}
+                    >
+                      <div className="flex justify-between">
+                        {item.lastMessageContent}
+                        {item.hasUnread && (
+                          <div className="w-2 h-2 bg-red-500 rounded-full mt-2 ml-2"></div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+              <div className="flex w-[80%] h-[0.5px] bg-gray-400 mx-auto"></div>
+            </>
           ))}
         </div>
       </div>
@@ -128,6 +167,8 @@ function Chat() {
             userName={selectedUserName}
             userImage={selectedUserImage}
             otherUserId={selectedUserId}
+            setChatsFn={setChats}
+            onIncomingMessage={handleIncomingMessage}
           />
         )}
       </div>

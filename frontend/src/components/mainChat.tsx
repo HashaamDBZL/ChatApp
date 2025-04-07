@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import InputComponent from "./input";
 import React from "react";
 import { useAuth } from "../contexts/AuthContexts";
 import { formatDateTimeString } from "../utils/dateUtils";
 import socket from "../socket";
 import { io } from "socket.io-client";
+import { ChatResponse } from "./chat";
 
 interface Message {
   id: string;
@@ -15,11 +16,28 @@ interface Message {
 interface props {
   chatId: string | null;
   otherUserId: string | null;
+  setChats: Dispatch<SetStateAction<ChatResponse[]>>;
+  onIncomingMessage: (message: {
+    chatId: string;
+    messageContent: string;
+    messageTimestamp: string;
+    status: string;
+  }) => void;
 }
 
-const MainChat = ({ chatId, otherUserId }: props) => {
+const MainChat = ({
+  chatId,
+  otherUserId,
+  setChats,
+  onIncomingMessage,
+}: props) => {
+  const chatIdRef = useRef<string | null>(chatId);
   const { token, userId: loggedInUserId } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    chatIdRef.current = chatId;
+  }, [chatId]);
 
   useEffect(() => {
     if (!loggedInUserId || !chatId) return;
@@ -27,7 +45,7 @@ const MainChat = ({ chatId, otherUserId }: props) => {
     socket.emit("join", loggedInUserId);
 
     const handleMessage = (message: any) => {
-      if (message.chatId === chatId) {
+      if (message.chatId === chatIdRef.current) {
         setMessages((prev) => {
           const alreadyExists = prev.some((m) => m.id === message.id); // Avoid duplicate
           if (alreadyExists) return prev;
@@ -37,8 +55,16 @@ const MainChat = ({ chatId, otherUserId }: props) => {
             {
               ...message,
               sentByMe: message.senderId === loggedInUserId,
+              messageTimestamp: new Date().toISOString(),
             },
           ];
+        });
+      } else {
+        onIncomingMessage({
+          chatId: message.chatId,
+          messageContent: message.messageContent,
+          messageTimestamp: new Date().toISOString(),
+          status: message.status,
         });
       }
     };
@@ -131,6 +157,17 @@ const MainChat = ({ chatId, otherUserId }: props) => {
 
       if (response.ok) {
         const savedMessage = await response.json();
+        setChats((prevChats) =>
+          prevChats.map((chat) =>
+            chat.chatId === chatId
+              ? {
+                  ...chat,
+                  lastMessageContent: savedMessage.messageContent,
+                  messageStatus: savedMessage.status,
+                }
+              : chat
+          )
+        );
 
         clearInput();
       } else {
@@ -147,22 +184,29 @@ const MainChat = ({ chatId, otherUserId }: props) => {
 
   return (
     <div className=" flex flex-col justify-end overflow-y-auto">
-      <div className=" flex-grow flex flex-col overflow-y-scroll">
+      <div className=" flex-grow flex flex-col overflow-y-scroll px-20 min-h-[36.1rem] pt-3">
         {messages.map((message, index) => (
-          <div key={index} className="mb-2">
+          <div
+            key={message.id}
+            className="mb-2 bg-white rounded-md w-fit px-4 flex flex-col"
+          >
             <p>
               {message.sentByMe ? "You: " : "Other: "}
               {message.messageContent}
             </p>
-            <small>{formatDateTimeString(message.messageTimestamp)}</small>
+            <small className="ml-auto w-full text-end">
+              {formatDateTimeString(message.messageTimestamp)}
+            </small>
           </div>
         ))}
       </div>
-      <InputComponent
-        onSendMessage={(message, clearInput) =>
-          sendMessage(message, clearInput)
-        }
-      />
+      <div className="w-full flex bg-gray-100">
+        <InputComponent
+          onSendMessage={(message, clearInput) =>
+            sendMessage(message, clearInput)
+          }
+        />
+      </div>
     </div>
   );
 };
