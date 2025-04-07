@@ -4,7 +4,6 @@ import React from "react";
 import { useAuth } from "../contexts/AuthContexts";
 import { formatDateTimeString } from "../utils/dateUtils";
 import socket from "../socket";
-import { io } from "socket.io-client";
 import { ChatResponse } from "./chat";
 
 interface Message {
@@ -47,7 +46,7 @@ const MainChat = ({
     const handleMessage = (message: any) => {
       if (message.chatId === chatIdRef.current) {
         setMessages((prev) => {
-          const alreadyExists = prev.some((m) => m.id === message.id); // Avoid duplicate
+          const alreadyExists = prev.some((m) => m.id === message.id);
           if (alreadyExists) return prev;
 
           return [
@@ -185,7 +184,7 @@ const MainChat = ({
   return (
     <div className=" flex flex-col justify-end overflow-y-auto">
       <div className=" flex-grow flex flex-col overflow-y-scroll px-20 min-h-[36.1rem] pt-3">
-        {messages.map((message, index) => (
+        {messages.map((message) => (
           <div
             key={message.id}
             className="mb-2 bg-white rounded-md w-fit px-4 flex flex-col"

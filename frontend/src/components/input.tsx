@@ -13,7 +13,7 @@ function InputComponent({ onSendMessage }: InputComponentProps) {
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter" && message.trim() !== "") {
-      onSendMessage(message.trim(), () => setMessage("")); // Pass a function to clear input
+      onSendMessage(message.trim(), () => setMessage(""));
     }
   };
 

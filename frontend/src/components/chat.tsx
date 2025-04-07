@@ -42,7 +42,7 @@ function Chat() {
               lastMessageContent: messageContent,
               messageTimestamp: messageTimestamp,
               messageStatus: status,
-              hasUnread: chatId !== selectedChatId, // mark unread only if not current chat
+              hasUnread: chatId !== selectedChatId,
             }
           : chat
       )
@@ -115,7 +115,7 @@ function Chat() {
           Chat
         </div>
         <div className="flex flex-col flex-1 overflow-y-auto">
-          {chats.map((item, index) => (
+          {chats.map((item) => (
             <>
               <div
                 key={item.chatId}
