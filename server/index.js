@@ -34,15 +34,11 @@ const io = socketIO(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("🔌 User connected:", socket.id);
-
   socket.on("join", (userId) => {
     socket.join(`user_${userId}`);
   });
 
-  socket.on("disconnect", () => {
-    console.log("❌ User disconnected:", socket.id);
-  });
+  socket.on("disconnect", () => {});
 });
 
 redisSubscriber.subscribe("chat_channel");
@@ -52,11 +48,6 @@ redisSubscriber.on("message", (channel, message) => {
   // Emit to both sender and receiver
   io.to(`user_${parsedMessage.senderId}`).emit("new_message", parsedMessage);
   io.to(`user_${parsedMessage.recieverId}`).emit("new_message", parsedMessage);
-  console.log(
-    "📡 Emitting to rooms:",
-    parsedMessage.senderId,
-    parsedMessage.recieverId
-  );
 });
 
 server.listen(3000, () => {

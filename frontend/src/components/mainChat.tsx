@@ -25,13 +25,9 @@ const MainChat = ({ chatId, otherUserId }: props) => {
     if (!loggedInUserId || !chatId) return;
 
     socket.emit("join", loggedInUserId);
-    console.log("✅ Joined room: user_" + loggedInUserId);
 
     const handleMessage = (message: any) => {
       if (message.chatId === chatId) {
-        console.log("📨 Checking chatId", message.chatId, chatId);
-        console.log("📨 New message received:", message);
-
         setMessages((prev) => {
           const alreadyExists = prev.some((m) => m.id === message.id); // Avoid duplicate
           if (alreadyExists) return prev;
@@ -44,12 +40,10 @@ const MainChat = ({ chatId, otherUserId }: props) => {
             },
           ];
         });
-        console.log("Updated messages after receiving new message:", messages);
       }
     };
 
     socket.on("new_message", (message) => {
-      console.log("📩 New message received:", message);
       handleMessage(message);
     });
 
@@ -121,7 +115,6 @@ const MainChat = ({ chatId, otherUserId }: props) => {
       messageContent: message.trim(),
       status: "sent",
     };
-    console.log("Message data =>", messageData);
 
     try {
       const response = await fetch(
@@ -139,8 +132,6 @@ const MainChat = ({ chatId, otherUserId }: props) => {
       if (response.ok) {
         const savedMessage = await response.json();
 
-        console.log("Message sent successfully:", savedMessage);
-
         clearInput();
       } else {
         console.error(
@@ -153,8 +144,6 @@ const MainChat = ({ chatId, otherUserId }: props) => {
       console.error("Error sending message:", error);
     }
   };
-
-  console.log("Rendering messages:", messages);
 
   return (
     <div className=" flex flex-col justify-end overflow-y-auto">
