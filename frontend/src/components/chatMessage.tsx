@@ -27,7 +27,7 @@ function ChatMessages({
 }: ChatMessagesProps) {
   return (
     <div className="flex flex-col h-full">
-      <div className="flex h-24 w-full items-center px-12 bg-gray-100 shrink-0">
+      <div className="flex h-16 w-full items-center px-12 bg-gray-100 shrink-0">
         <ProfilePicture imageUrl={userImage} />
         <div>{userName}</div>
       </div>
