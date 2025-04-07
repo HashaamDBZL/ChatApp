@@ -44,7 +44,9 @@ const MainChat = ({
     socket.emit("join", loggedInUserId);
 
     const handleMessage = (message: any) => {
-      if (message.chatId === chatIdRef.current) {
+      const isCurrentChat = message.chatId === chatIdRef.current;
+
+      if (isCurrentChat) {
         setMessages((prev) => {
           const alreadyExists = prev.some((m) => m.id === message.id);
           if (alreadyExists) return prev;
@@ -58,7 +60,21 @@ const MainChat = ({
             },
           ];
         });
-      } else {
+      }
+
+      setChats((prevChats) =>
+        prevChats.map((chat) =>
+          chat.chatId === message.chatId
+            ? {
+                ...chat,
+                lastMessageContent: message.messageContent,
+                messageTimestamp: new Date().toISOString(),
+                messageStatus: message.status,
+              }
+            : chat
+        )
+      );
+      if (!isCurrentChat) {
         onIncomingMessage({
           chatId: message.chatId,
           messageContent: message.messageContent,
@@ -66,6 +82,15 @@ const MainChat = ({
           status: message.status,
         });
       }
+      //  else {
+
+      //   onIncomingMessage({
+      //     chatId: message.chatId,
+      //     messageContent: message.messageContent,
+      //     messageTimestamp: new Date().toISOString(),
+      //     status: message.status,
+      //   });
+      // }
     };
 
     socket.on("new_message", (message) => {
@@ -186,16 +211,21 @@ const MainChat = ({
       <div className=" flex-grow flex flex-col overflow-y-scroll px-20 min-h-[36.1rem] pt-3">
         {messages.map((message) => (
           <div
-            key={message.id}
-            className="mb-2 bg-white rounded-md w-fit px-4 flex flex-col"
+            className={`w-full flex ${
+              message.sentByMe ? "justify-end" : "justify-start"
+            }`}
           >
-            <p>
-              {message.sentByMe ? "You: " : "Other: "}
-              {message.messageContent}
-            </p>
-            <small className="ml-auto w-full text-end">
-              {formatDateTimeString(message.messageTimestamp)}
-            </small>
+            <div
+              key={message.id}
+              className="mb-2 bg-white rounded-md w-fit max-w-[80%] px-4 flex flex-col"
+            >
+              <p className="break-words whitespace-pre-wrap">
+                {message.messageContent}
+              </p>
+              <small className="ml-auto w-full text-end">
+                {formatDateTimeString(message.messageTimestamp)}
+              </small>
+            </div>
           </div>
         ))}
       </div>

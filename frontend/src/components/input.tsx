@@ -25,7 +25,7 @@ function InputComponent({ onSendMessage }: InputComponentProps) {
         value={message}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
-        className="h-10 px-4 py-2 bg-transparent focus:outline-none"
+        className="h-10 px-4 py-2 bg-transparent focus:outline-none w-full"
       />
     </div>
   );

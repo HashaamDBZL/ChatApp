@@ -130,31 +130,30 @@ function Chat() {
                 }
               >
                 <ProfilePicture imageUrl={item.otherUserImage} />
-                <div className="flex flex-col flex-grow">
-                  <div className="flex justify-between">
-                    <div className="text-md">{item.otherUserName}</div>
 
-                    <div className="text-xs">
+                <div className="flex flex-col flex-grow min-w-0 ml-2">
+                  <div className="flex justify-between items-center">
+                    <div className="text-md">{item.otherUserName}</div>
+                    <div className="text-xs text-nowrap">
                       {formatDateTimeString(item.messageTimestamp!)}
                     </div>
                   </div>
-                  <div className="flex">
-                    <StatusIcon messageStatus={item.messageStatus} />
 
+                  <div className="flex items-center gap-2 w-full min-w-0">
+                    <StatusIcon messageStatus={item.messageStatus} />
                     <div
-                      className="text-sm truncate overflow-hidden whitespace-nowrap"
+                      className="text-sm truncate overflow-hidden whitespace-nowrap flex-1 min-w-0"
                       title={item.lastMessageContent ?? undefined}
                     >
-                      <div className="flex justify-between">
-                        {item.lastMessageContent}
-                        {item.hasUnread && (
-                          <div className="w-2 h-2 bg-red-500 rounded-full mt-2 ml-2"></div>
-                        )}
-                      </div>
+                      {item.lastMessageContent}
                     </div>
+                    {item.hasUnread && (
+                      <div className="w-2 h-2 bg-red-500 rounded-full shrink-0"></div>
+                    )}
                   </div>
                 </div>
               </div>
+
               <div className="flex w-[80%] h-[0.5px] bg-gray-400 mx-auto"></div>
             </>
           ))}
