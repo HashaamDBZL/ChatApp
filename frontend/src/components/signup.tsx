@@ -5,6 +5,10 @@ export default function Signup({ onAuthSuccess }) {
   // Receive onAuthSuccess from App
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [image, setImage] = useState("");
+  const [about, setAbout] = useState("");
+  const [number, setNumber] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -16,7 +20,14 @@ export default function Signup({ onAuthSuccess }) {
       const response = await fetch("http://localhost:3000/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          email,
+          password,
+          name,
+          image,
+          about,
+          number,
+        }),
       });
 
       const data = await response.json();
@@ -60,6 +71,30 @@ export default function Signup({ onAuthSuccess }) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+        />
+        <input
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Image URL"
+          value={image}
+          onChange={(e) => setImage(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="About"
+          value={about}
+          onChange={(e) => setAbout(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Number"
+          value={number}
+          onChange={(e) => setNumber(e.target.value)}
         />
         <button type="submit">Signup</button>
       </form>
