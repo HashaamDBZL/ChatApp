@@ -38,17 +38,13 @@ function Chat() {
             import.meta.env.VITE_BACKEND_URL
           }/api/users/users/${loggedInUserId}`,
           {
+            method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
             },
-            method: "GET",
           }
         );
-        console.log(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/users/users/${loggedInUserId}`
-        );
+
         if (!response.ok) {
           throw new Error("Failed to fetch user info");
         }
@@ -92,11 +88,6 @@ function Chat() {
   };
 
   const [isChatSelected, setIsChatSelected] = useState(false);
-
-  const handleLogoutClick = () => {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("token");
-  };
 
   useEffect(() => {
     const getData = async () => {
