@@ -41,6 +41,7 @@ function Chat() {
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "69420",
             },
           }
         );
