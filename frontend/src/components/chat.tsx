@@ -8,6 +8,7 @@ import ChatMessages from "./chatMessage";
 export interface ChatResponse {
   chatId: string;
   lastMessageContent: string | null;
+  lastMessageType: string | null;
   messageStatus: string | null;
   messageTimestamp: string | null;
   otherUserName: string | null;
@@ -116,7 +117,7 @@ function Chat() {
         </div>
         <div className="flex flex-col flex-1 overflow-y-auto">
           {chats.map((item) => (
-            <>
+            <div key={item.chatId}>
               <div
                 key={item.chatId}
                 className="p-4 cursor-pointer hover:bg-gray-100 flex items-center"
@@ -145,7 +146,9 @@ function Chat() {
                       className="text-sm truncate overflow-hidden whitespace-nowrap flex-1 min-w-0"
                       title={item.lastMessageContent ?? undefined}
                     >
-                      {item.lastMessageContent}
+                      {item.lastMessageType === "text"
+                        ? item.lastMessageContent
+                        : "Image"}
                     </div>
                     {item.hasUnread && (
                       <div className="w-2 h-2 bg-red-500 rounded-full shrink-0"></div>
@@ -155,7 +158,7 @@ function Chat() {
               </div>
 
               <div className="flex w-[80%] h-[0.5px] bg-gray-400 mx-auto"></div>
-            </>
+            </div>
           ))}
         </div>
       </div>

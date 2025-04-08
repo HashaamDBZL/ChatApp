@@ -239,9 +239,9 @@ const MainChat = ({
   return (
     <div className="flex flex-col justify-end overflow-y-auto">
       <div className="flex-grow flex flex-col overflow-y-scroll px-20 min-h-[36.1rem] pt-3">
-        {messages.map((message) => (
+        {messages.map((message, index) => (
           <div
-            key={message.id}
+            key={`${message.id}-${index}`}
             className={`w-full flex ${
               message.sentByMe ? "justify-end" : "justify-start"
             }`}

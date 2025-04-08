@@ -29,7 +29,7 @@ async function getChatsWithLatestMessageAndUserData(loggedInUserId) {
         if (chat.lastMessageId) {
           lastMessage = await Message.findOne({
             where: { id: chat.lastMessageId },
-            attributes: ["messageContent", "status", "createdAt"],
+            attributes: ["messageContent", "status", "createdAt", "type"],
           });
         }
 
@@ -43,6 +43,7 @@ async function getChatsWithLatestMessageAndUserData(loggedInUserId) {
         return {
           chatId: chat.id,
           lastMessageContent: lastMessage?.messageContent || null,
+          lastMessageType: lastMessage?.type || null,
           messageStatus: lastMessage?.status || null,
           messageTimestamp: lastMessage?.createdAt || null,
           otherUserName: otherUser?.name || null,
