@@ -101,7 +101,7 @@ const MainChat = ({
 
       try {
         const response = await fetch(
-          `http://localhost:3000/api/chats/${chatId}/messages`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/chats/${chatId}/messages`,
           {
             method: "POST",
             headers: {
@@ -166,7 +166,7 @@ const MainChat = ({
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/messages/messages",
+        `${import.meta.env.VITE_BACKEND_URL}/api/messages/messages`,
         {
           method: "POST",
           headers: {
@@ -215,7 +215,7 @@ const MainChat = ({
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/messages/upload",
+        `${import.meta.env.VITE_BACKEND_URL}/api/messages/upload`,
         {
           method: "POST",
           headers: {

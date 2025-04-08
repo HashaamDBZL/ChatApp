@@ -17,18 +17,21 @@ export default function Signup({ onAuthSuccess }) {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:3000/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password,
-          name,
-          image,
-          about,
-          number,
-        }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/signup`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            password,
+            name,
+            image,
+            about,
+            number,
+          }),
+        }
+      );
 
       const data = await response.json();
 

@@ -34,7 +34,9 @@ function Chat() {
     const fetchUser = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/api/users/users/${loggedInUserId}`,
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/users/users/${loggedInUserId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -92,7 +94,7 @@ function Chat() {
     const getData = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3000/api/chats/sidebar",
+          `${import.meta.env.VITE_BACKEND_URL}/api/chats/sidebar`,
           {
             method: "POST",
             headers: {

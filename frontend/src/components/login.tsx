@@ -13,11 +13,14 @@ export default function Login() {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:3000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       const data = await response.json();
 
@@ -33,7 +36,7 @@ export default function Login() {
           console.log("Navigating elsewhere");
           localStorage.setItem("token", data.token);
           localStorage.setItem("userId", data.userId);
-          navigate("/chat");
+          navigate("/");
         } else {
           setError("Login successful, but no token received.");
         }
@@ -46,14 +49,6 @@ export default function Login() {
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <div
-        onClick={() => {
-          console.log("here");
-          navigate("/chat");
-        }}
-      >
-        Go ot home
-      </div>
       <div className="flex flex-col items-center">
         {error && <p style={{ color: "red" }}>{error}</p>}
         <form onSubmit={handleSubmit}>
@@ -65,6 +60,7 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="placeholder:text-center"
               />
               <input
                 type="password"
@@ -72,6 +68,7 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="placeholder:text-center"
               />
             </div>
             <button

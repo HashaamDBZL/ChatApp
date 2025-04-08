@@ -2,13 +2,15 @@ import React from "react";
 
 const SignInWithGoogle = () => {
   function handleGoogleSignIn(event): void {
-    window.location.href = "http://localhost:3000/api/auth/google";
+    window.location.href = `${
+      import.meta.env.VITE_BACKEND_URL
+    }/api/auth/google`;
   }
 
   return (
     <button
       aria-label="Sign in with Google"
-      className="flex items-center bg-white border border-[#dadce0] rounded-md p-0.5 pr-3"
+      className="flex items-center bg-white border border-[#dadce0] rounded-md p-0.5 pr-3 cursor-pointer"
       onClick={handleGoogleSignIn}
     >
       <div className="flex items-center justify-center bg-white w-9 h-9 rounded-l">

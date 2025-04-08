@@ -11,7 +11,7 @@ function AuthCallback() {
     if (token && userId) {
       localStorage.setItem("token", token);
       localStorage.setItem("userId", userId);
-      navigate("/chat");
+      navigate("/");
     } else {
       console.error("Authentication failed: Missing token or userId");
       navigate("/login");

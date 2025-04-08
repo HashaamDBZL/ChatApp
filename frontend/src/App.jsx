@@ -4,7 +4,6 @@ import Login from "./components/login";
 import Signup from "./components/signup";
 import Chat from "./components/chat";
 import AuthCallback from "./components/AuthCallback";
-import { AuthProvider } from "./contexts/AuthContexts";
 import "./App.css";
 import socket from "./socket";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -25,22 +24,20 @@ function App() {
   };
 
   return (
-    <AuthProvider>
-      <Routes>
-        <Route element={<ProtectedRoute />}>
-          <Route path="/chat" element={<Chat />} />
-        </Route>
-        <Route
-          path="/login"
-          element={<Login onAuthSuccess={handleAuthChange} />}
-        />
-        <Route
-          path="/signup"
-          element={<Signup onAuthSuccess={handleAuthChange} />}
-        />
-        <Route path="/auth/callback" element={<AuthCallback />} />
-      </Routes>
-    </AuthProvider>
+    <Routes>
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<Chat />} />
+      </Route>
+      <Route
+        path="/login"
+        element={<Login onAuthSuccess={handleAuthChange} />}
+      />
+      <Route
+        path="/signup"
+        element={<Signup onAuthSuccess={handleAuthChange} />}
+      />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+    </Routes>
   );
 }
 
