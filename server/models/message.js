@@ -43,6 +43,10 @@ const Message = sequelize.define(
       type: DataTypes.ENUM("sent", "delivered", "read"),
       defaultValue: "sent",
     },
+    type: {
+      type: DataTypes.ENUM("text", "image", "audio"),
+      defaultValue: "text",
+    },
   },
   {
     timestamps: true,

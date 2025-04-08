@@ -11,6 +11,7 @@ interface Message {
   messageContent: string;
   messageTimestamp: string;
   sentByMe: boolean;
+  type: "text" | "image";
 }
 interface props {
   chatId: string | null;
@@ -74,6 +75,7 @@ const MainChat = ({
             : chat
         )
       );
+
       if (!isCurrentChat) {
         onIncomingMessage({
           chatId: message.chatId,
@@ -82,15 +84,6 @@ const MainChat = ({
           status: message.status,
         });
       }
-      //  else {
-
-      //   onIncomingMessage({
-      //     chatId: message.chatId,
-      //     messageContent: message.messageContent,
-      //     messageTimestamp: new Date().toISOString(),
-      //     status: message.status,
-      //   });
-      // }
     };
 
     socket.on("new_message", (message) => {
@@ -133,7 +126,11 @@ const MainChat = ({
     fetchChatMessages();
   }, [chatId]);
 
-  const sendMessage = async (message: string, clearInput: () => void) => {
+  const sendMessage = async (
+    message: string,
+    clearInput: () => void,
+    type: "text" | "image"
+  ) => {
     if (!token) {
       console.error("No token available");
       return;
@@ -164,6 +161,7 @@ const MainChat = ({
       senderId: loggedInUserId,
       messageContent: message.trim(),
       status: "sent",
+      type,
     };
 
     try {
@@ -188,6 +186,7 @@ const MainChat = ({
                   ...chat,
                   lastMessageContent: savedMessage.messageContent,
                   messageStatus: savedMessage.status,
+                  messageTimestamp: new Date().toISOString(),
                 }
               : chat
           )
@@ -205,23 +204,71 @@ const MainChat = ({
       console.error("Error sending message:", error);
     }
   };
+  const onImageUpload = async (file: File, clearInput: () => void) => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("senderId", loggedInUserId!);
+    formData.append("recieverId", otherUserId!);
+    formData.append("chatId", chatId!);
+
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/messages/upload",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (response.ok) {
+        const newMessage = await response.json();
+
+        // Update the messages with the new image message
+        // setMessages((prev) => [
+        //   ...prev,
+        //   {
+        //     ...newMessage,
+        //     sentByMe: newMessage.senderId === loggedInUserId,
+        //     messageTimestamp: new Date().toISOString(),
+        //   },
+        // ]);
+
+        clearInput();
+      } else {
+        console.error("Image upload failed:", response.status);
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
+  };
 
   return (
-    <div className=" flex flex-col justify-end overflow-y-auto">
-      <div className=" flex-grow flex flex-col overflow-y-scroll px-20 min-h-[36.1rem] pt-3">
+    <div className="flex flex-col justify-end overflow-y-auto">
+      <div className="flex-grow flex flex-col overflow-y-scroll px-20 min-h-[36.1rem] pt-3">
         {messages.map((message) => (
           <div
+            key={message.id}
             className={`w-full flex ${
               message.sentByMe ? "justify-end" : "justify-start"
             }`}
           >
-            <div
-              key={message.id}
-              className="mb-2 bg-white rounded-md w-fit max-w-[80%] px-4 flex flex-col"
-            >
-              <p className="break-words whitespace-pre-wrap">
-                {message.messageContent}
-              </p>
+            <div className="mb-2 bg-white rounded-md w-fit max-w-[80%] px-4 flex flex-col">
+              {message.type === "image" ? (
+                <img
+                  src={message.messageContent}
+                  alt="Message content"
+                  className="max-w-full rounded-md"
+                />
+              ) : (
+                <p className="break-words whitespace-pre-wrap">
+                  {message.messageContent}
+                </p>
+              )}
               <small className="ml-auto w-full text-end">
                 {formatDateTimeString(message.messageTimestamp)}
               </small>
@@ -232,8 +279,9 @@ const MainChat = ({
       <div className="w-full flex bg-gray-100">
         <InputComponent
           onSendMessage={(message, clearInput) =>
-            sendMessage(message, clearInput)
+            sendMessage(message, clearInput, "text")
           }
+          onImageUpload={(file, clearInput) => onImageUpload(file, clearInput)}
         />
       </div>
     </div>

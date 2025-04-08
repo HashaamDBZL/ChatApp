@@ -2,9 +2,12 @@ export function formatDateTimeString(dateTimeString: string): string {
   const date = new Date(dateTimeString);
   const now = new Date();
 
-  // Strip time and compare just the date (ignoring time)
-  const startOfToday = new Date(now.setHours(0, 0, 0, 0));
-  const startOfMessageDay = new Date(date.setHours(0, 0, 0, 0));
+  // Create copies of the dates to avoid modifying the original date objects
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const startOfMessageDay = new Date(date);
+  startOfMessageDay.setHours(0, 0, 0, 0);
 
   const isSameDay = startOfMessageDay.getTime() === startOfToday.getTime();
 
@@ -41,6 +44,5 @@ export function formatDateTimeString(dateTimeString: string): string {
   const day = date.getDate();
   const month = date.getMonth() + 1;
   const year = date.getFullYear();
-
   return `${day}-${month}-${year}`;
 }
