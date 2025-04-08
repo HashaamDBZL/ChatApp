@@ -41,6 +41,7 @@ function Chat() {
             headers: {
               Authorization: `Bearer ${token}`,
             },
+            method: "GET",
           }
         );
         console.log(
