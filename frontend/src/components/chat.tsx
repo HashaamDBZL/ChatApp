@@ -30,41 +30,6 @@ function Chat() {
   const loggedInUserId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/users/users/${loggedInUserId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "ngrok-skip-browser-warning": "69420",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch user info");
-        }
-
-        const data = await response.json();
-        setLoggedInUser(data);
-      } catch (err) {
-        console.error("Error fetching logged-in user info:", err);
-        `URL=> ${
-          import.meta.env.VITE_BACKEND_URL
-        }/api/users/users/${loggedInUserId}`;
-      }
-    };
-
-    if (loggedInUserId && token) {
-      fetchUser();
-    }
-  }, [loggedInUserId, token]);
-
   const handleIncomingMessage = (message: {
     chatId: string;
     messageContent: string;
