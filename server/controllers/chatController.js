@@ -63,7 +63,7 @@ async function getMessagesInChat(chatId, loggedInUserId) {
   try {
     const messages = await Message.findAll({
       where: { chatId: chatId },
-      attributes: ["messageContent", "createdAt", "senderId"],
+      attributes: ["messageContent", "createdAt", "senderId", "type"],
       order: [["createdAt", "ASC"]], // Order messages by timestamp
     });
 
@@ -72,6 +72,7 @@ async function getMessagesInChat(chatId, loggedInUserId) {
         messageContent: message.messageContent,
         messageTimestamp: message.createdAt,
         sentByMe: message.senderId === loggedInUserId,
+        type: message.type,
       };
     });
 

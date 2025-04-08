@@ -227,17 +227,6 @@ const MainChat = ({
 
       if (response.ok) {
         const newMessage = await response.json();
-
-        // Update the messages with the new image message
-        // setMessages((prev) => [
-        //   ...prev,
-        //   {
-        //     ...newMessage,
-        //     sentByMe: newMessage.senderId === loggedInUserId,
-        //     messageTimestamp: new Date().toISOString(),
-        //   },
-        // ]);
-
         clearInput();
       } else {
         console.error("Image upload failed:", response.status);
