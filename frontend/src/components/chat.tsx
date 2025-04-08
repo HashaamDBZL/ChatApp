@@ -43,7 +43,11 @@ function Chat() {
             },
           }
         );
-
+        console.log(
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/users/users/${loggedInUserId}`
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch user info");
         }
@@ -52,6 +56,9 @@ function Chat() {
         setLoggedInUser(data);
       } catch (err) {
         console.error("Error fetching logged-in user info:", err);
+        `URL=> ${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/users/users/${loggedInUserId}`;
       }
     };
 
