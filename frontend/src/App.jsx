@@ -3,12 +3,14 @@ import { Route, Routes, Navigate } from "react-router";
 import Login from "./components/login";
 import Signup from "./components/signup";
 import Chat from "./components/chat";
+import AuthCallback from "./components/AuthCallback";
 import { AuthProvider } from "./contexts/AuthContexts";
 import "./App.css";
 import socket from "./socket";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
-  const [token, setToken] = useState(localStorage.getItem("token")); // Initial check
+  const [setToken] = useState(localStorage.getItem("token")); // Initial check
   socket.connect();
 
   const handleAuthChange = (newToken) => {
@@ -25,10 +27,9 @@ function App() {
   return (
     <AuthProvider>
       <Routes>
-        <Route
-          path="/"
-          element={token ? <Chat /> : <Navigate to="/login" replace />}
-        />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/chat" element={<Chat />} />
+        </Route>
         <Route
           path="/login"
           element={<Login onAuthSuccess={handleAuthChange} />}
@@ -37,6 +38,7 @@ function App() {
           path="/signup"
           element={<Signup onAuthSuccess={handleAuthChange} />}
         />
+        <Route path="/auth/callback" element={<AuthCallback />} />
       </Routes>
     </AuthProvider>
   );

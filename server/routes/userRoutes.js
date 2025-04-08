@@ -1,6 +1,9 @@
 const { User } = require("../models/User.js");
 const express = require("express");
-const { getAllUsers } = require("../controllers/userController.js");
+const {
+  getAllUsers,
+  getUserById,
+} = require("../controllers/userController.js");
 
 const router = express.Router();
 
@@ -25,5 +28,7 @@ router.post("/users", async (req, res) => {
 
 //GET: Get all users
 router.get("/users/all", getAllUsers);
+
+router.get("/users/:userId", getUserById);
 
 module.exports = router;

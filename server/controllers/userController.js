@@ -9,7 +9,24 @@ async function getAllUsers(req, res) {
     res.status(500).json({ error: "Failed to fetch users." });
   }
 }
+async function getUserById(req, res) {
+  const { userId } = req.params;
+
+  try {
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error("Error fetching user by ID:", error);
+    res.status(500).json({ error: "Failed to fetch user." });
+  }
+}
 
 module.exports = {
   getAllUsers,
+  getUserById,
 };

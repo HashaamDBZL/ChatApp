@@ -44,3 +44,13 @@ export interface Chat {
   messageTimestamp: string;
   messageStatus: string;
 }
+
+export interface UserData {
+  id: string;
+  name: string;
+  image: string;
+  about: string;
+  number: string;
+  email: string;
+  password: string;
+}

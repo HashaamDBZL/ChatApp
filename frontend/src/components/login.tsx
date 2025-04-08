@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
+import SignInWithGoogle from "./signInWithGoogle";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -32,6 +33,7 @@ export default function Login() {
           console.log("Navigating elsewhere");
           localStorage.setItem("token", data.token);
           localStorage.setItem("userId", data.userId);
+          navigate("/chat");
         } else {
           setError("Login successful, but no token received.");
         }
@@ -43,26 +45,46 @@ export default function Login() {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Login</button>
-      </form>
+    <div className="flex justify-center items-center h-screen">
+      <div
+        onClick={() => {
+          console.log("here");
+          navigate("/chat");
+        }}
+      >
+        Go ot home
+      </div>
+      <div className="flex flex-col items-center">
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        <form onSubmit={handleSubmit}>
+          <div className="flex flex-col items-center">
+            <div className="flex">
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              className="mt-12 border border-solid cursor-pointer rounded-2xl w-fit px-4"
+            >
+              Login
+            </button>
+          </div>
+        </form>
+        <h2 className="py-12">OR</h2>
+        <SignInWithGoogle />
+      </div>
     </div>
   );
 }

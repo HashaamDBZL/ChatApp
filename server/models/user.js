@@ -16,7 +16,7 @@ const User = sequelize.define(
     image: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
+      unique: false,
     },
     about: {
       type: DataTypes.STRING,

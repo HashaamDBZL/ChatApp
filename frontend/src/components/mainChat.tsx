@@ -1,7 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import InputComponent from "./input";
 import React from "react";
-import { useAuth } from "../contexts/AuthContexts";
 import { formatDateTimeString } from "../utils/dateUtils";
 import socket from "../socket";
 import { ChatResponse } from "./chat";
@@ -32,7 +31,8 @@ const MainChat = ({
   onIncomingMessage,
 }: props) => {
   const chatIdRef = useRef<string | null>(chatId);
-  const { token, userId: loggedInUserId } = useAuth();
+  const token = localStorage.getItem("token");
+  const loggedInUserId = localStorage.getItem("userId");
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
@@ -238,7 +238,7 @@ const MainChat = ({
 
   return (
     <div className="flex flex-col justify-end overflow-y-auto">
-      <div className="flex-grow flex flex-col overflow-y-scroll px-20 min-h-[36.1rem] pt-3">
+      <div className="flex-grow flex flex-col overflow-y-scroll px-20 min-h-[39rem] pt-3">
         {messages.map((message, index) => (
           <div
             key={`${message.id}-${index}`}

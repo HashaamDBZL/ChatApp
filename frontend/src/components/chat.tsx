@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../contexts/AuthContexts"; // Adjust the path
 import ProfilePicture from "./profilePicture";
 import { formatDateTimeString } from "../utils/dateUtils";
 import StatusIcon from "./statusIcon";
 import ChatMessages from "./chatMessage";
+import LogoutButton from "./LogoutButton";
+import { UserData } from "../types";
 
 export interface ChatResponse {
   chatId: string;
@@ -18,7 +19,6 @@ export interface ChatResponse {
 }
 
 function Chat() {
-  const { logout, token } = useAuth();
   const [chats, setChats] = useState<ChatResponse[]>([]);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string | null>(null);
@@ -26,6 +26,37 @@ function Chat() {
   const [selectedUserImage, setSelectedUserImage] = useState<string | null>(
     null
   );
+  const [loggedInUser, setLoggedInUser] = useState<UserData | null>(null);
+  const loggedInUserId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/users/users/${loggedInUserId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user info");
+        }
+
+        const data = await response.json();
+        setLoggedInUser(data);
+      } catch (err) {
+        console.error("Error fetching logged-in user info:", err);
+      }
+    };
+
+    if (loggedInUserId && token) {
+      fetchUser();
+    }
+  }, [loggedInUserId, token]);
 
   const handleIncomingMessage = (message: {
     chatId: string;
@@ -51,10 +82,10 @@ function Chat() {
   };
 
   const [isChatSelected, setIsChatSelected] = useState(false);
-  const { userId: loggedInUserId } = useAuth();
 
   const handleLogoutClick = () => {
-    logout();
+    localStorage.removeItem("userId");
+    localStorage.removeItem("token");
   };
 
   useEffect(() => {
@@ -112,8 +143,12 @@ function Chat() {
   return (
     <div className="flex h-[100vh] ">
       <div className="w-4/12 h-full flex-col ">
-        <div className="h-24 flex items-center text-start px-12 text-xl font-bold shrink-0">
-          Chat
+        <div className="h-24 flex items-center text-start px-12 text-xl font-bold shrink-0 justify-between">
+          <span>Chat</span>
+          <div className="flex items-center">
+            <div className="mr-2">{loggedInUser?.name}</div>
+            <LogoutButton />
+          </div>
         </div>
         <div className="flex flex-col flex-1 overflow-y-auto">
           {chats.map((item) => (

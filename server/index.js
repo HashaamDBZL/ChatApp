@@ -9,9 +9,10 @@ const authMiddleware = require("./middleware/authMiddleware.ts");
 const socketIO = require("socket.io");
 const http = require("http");
 const { redisSubscriber } = require("./config/redis.js");
+const passport = require("./config/passport"); // Import Passport configuration
+const session = require("express-session"); // For session management
 
 const app = express();
-
 app.use(bodyParser.json());
 app.use(
   cors({
@@ -20,6 +21,22 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      // secure: true, // Enable in production if using HTTPS
+      maxAge: 24 * 60 * 60 * 1000, // Example: 24 hours
+    },
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", authMiddleware, userRoutes);
