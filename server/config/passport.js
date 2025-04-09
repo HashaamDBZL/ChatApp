@@ -18,7 +18,6 @@ passport.use(
           where: { email: profile.emails[0].value },
         });
 
-        console.log(profile._json);
         if (existingUser) {
           return done(null, existingUser);
         }
