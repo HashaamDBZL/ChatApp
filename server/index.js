@@ -56,23 +56,15 @@ const io = socketIO(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("New connection: ", socket.id);
-
   socket.on("join", (userId) => {
     socket.join(`user_${userId}`);
-    console.log(`User ${userId} joined room user_${userId}`);
     io.of("/").adapter.rooms;
   });
 
   socket.on("user_online", async (userId) => {
     try {
-      console.log("user online");
       onlineUsers.set(userId, socket.id);
       await markMessagesAsDelivered(userId, io);
-      console.log(
-        "After useronline event, state of onlineUsers is=>",
-        onlineUsers
-      );
     } catch (error) {
       console.error("Error marking messages as delivered on login:", error);
     }
@@ -82,7 +74,6 @@ io.on("connection", (socket) => {
     try {
       await markMessagesAsRead(chatId, userId, io);
       userCurrentChats.set(userId, chatId);
-      console.log("Chat is opened and so userCurrentChats=", userCurrentChats);
     } catch (err) {
       console.error("Failed to mark messages as read:", err);
     }
@@ -92,27 +83,17 @@ io.on("connection", (socket) => {
     // Clean up the chat state
     if (userCurrentChats.get(userId) === chatId) {
       userCurrentChats.delete(userId);
-      console.log(`User ${userId} left chat ${chatId}:`, userCurrentChats); // Added comment
     }
   });
 
   // User logs out
   socket.on("user_logout", (userId) => {
-    console.log(onlineUsers);
     if (onlineUsers.get(userId)) {
       onlineUsers.delete(userId);
-      console.log(
-        `User ${userId} logged out, removed from onlineUsers:`,
-        onlineUsers
-      ); // Added comment
     }
 
     if (userCurrentChats.get(userId)) {
       userCurrentChats.delete(userId);
-      console.log(
-        `User ${userId} logged out, removed from userCurrentChats:`,
-        userCurrentChats
-      ); // Added comment
     }
   });
 
@@ -123,16 +104,9 @@ io.on("connection", (socket) => {
       if (onlineUsers.get(userId) === socket.id) {
         // Handle logout logic for disconnected user
         onlineUsers.delete(userId);
-        console.log(
-          `User with socket ${socket.id} disconnected, removed from onlineUsers:`,
-          onlineUsers
-        ); // Added comment
+
         if (userCurrentChats.get(userId)) {
           userCurrentChats.delete(userId);
-          console.log(
-            `User ${userId} disconnected, removed from userCurrentChats:`,
-            userCurrentChats
-          ); // Added comment
         }
         break;
       }
@@ -143,7 +117,6 @@ io.on("connection", (socket) => {
 redisSubscriber.subscribe("chat_channel");
 redisSubscriber.on("message", (channel, message) => {
   const parsedMessage = JSON.parse(message);
-  console.table(parsedMessage);
 
   // Emit to both sender and receiver
   io.to(`user_${parsedMessage.senderId}`).emit("new_message", parsedMessage);

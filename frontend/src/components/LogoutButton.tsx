@@ -6,7 +6,6 @@ const LogoutButton = () => {
   const navigate = useNavigate();
   function handleLogout(event): void {
     socket.emit("user_logout", localStorage.getItem("userId"));
-    console.log("Emmitted logout event");
     localStorage.removeItem("userId");
     localStorage.removeItem("token");
     navigate("/login");

@@ -34,15 +34,13 @@ async function updateMessageSenderAndReceiver(
     );
 
     if (updatedRowsCount[0] > 0) {
-      console.log(`Message with ID ${messageId} updated successfully.`);
-      return true; // Or return updatedRowsCount[0] if you need the count
+      return true;
     } else {
-      console.log(`Message with ID ${messageId} not found.`);
       return false;
     }
   } catch (error) {
     console.error("Error updating message:", error);
-    throw error; // Rethrow for the caller to handle
+    throw error;
   }
 }
 

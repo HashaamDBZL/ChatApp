@@ -31,9 +31,7 @@ export default function Login() {
           setError("Login failed");
         }
       } else {
-        console.log("Login successful:", data);
         if (data && data.token) {
-          console.log("Navigating elsewhere");
           localStorage.setItem("token", data.token);
           localStorage.setItem("userId", data.userId);
           navigate("/");
