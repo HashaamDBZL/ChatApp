@@ -14,6 +14,7 @@ interface ChatMessagesProps {
     messageContent: string;
     messageTimestamp: string;
     status: string;
+    type: string;
   }) => void;
 }
 

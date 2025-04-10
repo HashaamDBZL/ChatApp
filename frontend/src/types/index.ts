@@ -13,11 +13,12 @@ export interface ChatResponse {
 }
 
 export interface Message {
+  status: string | null | undefined;
   id: string;
   messageContent: string;
   messageTimestamp: string;
   sentByMe: boolean;
-  type: "text" | "image";
+  type: "text" | "audio" | "image";
 }
 
 export interface mainChatProps {
@@ -29,6 +30,7 @@ export interface mainChatProps {
     messageContent: string;
     messageTimestamp: string;
     status: string;
+    type: string;
   }) => void;
 }
 

@@ -6,37 +6,20 @@ import socket from "../socket";
 import { ChatResponse } from "./chat";
 import chatBackgroundImage from "../assets/chatBackground.png";
 import StatusIcon from "./statusIcon";
-
-interface Message {
-  status: string | null | undefined;
-  id: string;
-  messageContent: string;
-  messageTimestamp: string;
-  sentByMe: boolean;
-  type: "text" | "image";
-}
-interface props {
-  chatId: string | null;
-  otherUserId: string | null;
-  setChats: Dispatch<SetStateAction<ChatResponse[]>>;
-  onIncomingMessage: (message: {
-    chatId: string;
-    messageContent: string;
-    messageTimestamp: string;
-    status: string;
-  }) => void;
-}
+import CustomAudioPlayer from "./CustomAudioPlayer";
+import { mainChatProps, Message } from "../types";
 
 const MainChat = ({
   chatId,
   otherUserId,
   setChats,
   onIncomingMessage,
-}: props) => {
+}: mainChatProps) => {
   const chatIdRef = useRef<string | null>(chatId);
   const token = localStorage.getItem("token");
   const loggedInUserId = localStorage.getItem("userId");
   const [messages, setMessages] = useState<Message[]>([]);
+
   //Socket logic + listener(handleMessage) for new messages recieved via socket event "new_message"
   useEffect(() => {
     if (!loggedInUserId || !chatId) return;
@@ -58,6 +41,7 @@ const MainChat = ({
     chatIdRef.current = chatId;
 
     const handleMessage = (message: any) => {
+      console.log("Inside handle message", message);
       const isCurrentChat = message.chatId === chatIdRef.current;
 
       if (isCurrentChat) {
@@ -85,17 +69,20 @@ const MainChat = ({
                 messageTimestamp: new Date().toISOString(),
                 messageStatus: message.status,
                 lastMessageSenderId: message.senderId,
+                lastMessageType: message.type,
               }
             : chat
         )
       );
 
       if (!isCurrentChat) {
+        console.table(message);
         onIncomingMessage({
           chatId: message.chatId,
           messageContent: message.messageContent,
           messageTimestamp: new Date().toISOString(),
           status: message.status,
+          type: message.type,
         });
       }
     };
@@ -231,6 +218,7 @@ const MainChat = ({
                   lastMessageContent: savedMessage.messageContent,
                   messageStatus: savedMessage.status,
                   messageTimestamp: new Date().toISOString(),
+                  lastMessageType: savedMessage.type,
                 }
               : chat
           )
@@ -309,6 +297,8 @@ const MainChat = ({
                   alt="Message content"
                   className="max-w-full rounded-md"
                 />
+              ) : message.type === "audio" ? (
+                <CustomAudioPlayer src={message.messageContent} />
               ) : (
                 <div>
                   <div className={`break-words flex whitespace-pre-wrap`}>
@@ -319,6 +309,7 @@ const MainChat = ({
                   </div>
                 </div>
               )}
+
               <small className="ml-auto w-full text-end">
                 {formatDateTimeString(message.messageTimestamp)}
               </small>
@@ -332,6 +323,8 @@ const MainChat = ({
             sendMessage(message, clearInput, "text")
           }
           onImageUpload={(file, clearInput) => onImageUpload(file, clearInput)}
+          chatId={chatId}
+          otherUserId={otherUserId}
         />
       </div>
     </div>

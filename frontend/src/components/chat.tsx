@@ -39,8 +39,10 @@ function Chat() {
     messageContent: string;
     messageTimestamp: string;
     status: string;
+    type: string;
   }) => {
-    const { chatId, messageContent, messageTimestamp, status } = message;
+    const { chatId, messageContent, messageTimestamp, status, type } = message;
+    console.log("Message insideee chat.tsxxxxx", message);
 
     setChats((prevChats) =>
       prevChats.map((chat) =>
@@ -51,6 +53,7 @@ function Chat() {
               messageTimestamp: messageTimestamp,
               messageStatus: status,
               hasUnread: chatId !== selectedChatId,
+              lastMessageType: type,
             }
           : chat
       )
@@ -88,6 +91,10 @@ function Chat() {
 
     getData();
   }, []);
+
+  useEffect(() => {
+    console.table(chats);
+  }, [chats]);
 
   //Emits user_online event so the users messages are marked as delivered
   useEffect(() => {
@@ -164,7 +171,9 @@ function Chat() {
                     >
                       {item.lastMessageType === "text"
                         ? item.lastMessageContent
-                        : "Image"}
+                        : item.lastMessageType === "audio"
+                        ? "Audio"
+                        : item.lastMessageType === "image" && "Image"}
                     </div>
                     {item.hasUnread && (
                       <div className="w-5 h-5 bg-green-500 rounded-full shrink-0 text-white flex items-center justify-center text-sm">

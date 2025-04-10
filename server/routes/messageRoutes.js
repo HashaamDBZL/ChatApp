@@ -88,6 +88,17 @@ router.post(
     try {
       const { senderId, recieverId, chatId } = req.body;
 
+      let status = "sent";
+
+      if (onlineUsers.has(recieverId)) {
+        const currentChatOfReceiver = userCurrentChats.get(recieverId);
+        if (currentChatOfReceiver === chatId) {
+          status = "read";
+        } else {
+          status = "delivered";
+        }
+      }
+
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
       }
@@ -100,7 +111,7 @@ router.post(
         senderId: senderId,
         recieverId: recieverId,
         messageContent: fileUrl,
-        status: "sent",
+        status: status,
         type: "image", // Set message type as image
       });
 
@@ -173,6 +184,17 @@ router.post(
     try {
       const { senderId, recieverId, chatId } = req.body;
 
+      let status = "sent";
+
+      if (onlineUsers.has(recieverId)) {
+        const currentChatOfReceiver = userCurrentChats.get(recieverId);
+        if (currentChatOfReceiver === chatId) {
+          status = "read";
+        } else {
+          status = "delivered";
+        }
+      }
+
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
       }
@@ -185,7 +207,7 @@ router.post(
         senderId: senderId,
         recieverId: recieverId,
         messageContent: fileUrl,
-        status: "sent",
+        status: status,
         type: "audio", // Set message type as image
       });
 
@@ -195,13 +217,14 @@ router.post(
       if (!chat) {
         return res.status(404).json({ error: "Chat not found" });
       }
-      redisPublisher.publish("chat_channel", JSON.stringify(newMessage));
 
       // Step 3: Update the chat's last message
       const updatedChat = await Chat.update(
         { lastMessageId: newMessage.id },
         { where: { id: chatId } }
       );
+
+      redisPublisher.publish("chat_channel", JSON.stringify(newMessage));
 
       // Check if the update was successful
       if (updatedChat[0] === 0) {
