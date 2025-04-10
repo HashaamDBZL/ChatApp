@@ -165,4 +165,56 @@ router.put("/chats/:chatId/messages/read", async (req, res) => {
   }
 });
 
+router.post(
+  "/upload/audio",
+  authenticate,
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      const { senderId, recieverId, chatId } = req.body;
+
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const fileUrl = await uploadToS3(req.file);
+
+      // Step 1: Create message for the image
+      const newMessage = await Message.create({
+        chatId: chatId,
+        senderId: senderId,
+        recieverId: recieverId,
+        messageContent: fileUrl,
+        status: "sent",
+        type: "audio", // Set message type as image
+      });
+
+      // Step 2: Verify the chat exists before updating
+      const chat = await Chat.findByPk(chatId);
+
+      if (!chat) {
+        return res.status(404).json({ error: "Chat not found" });
+      }
+      redisPublisher.publish("chat_channel", JSON.stringify(newMessage));
+
+      // Step 3: Update the chat's last message
+      const updatedChat = await Chat.update(
+        { lastMessageId: newMessage.id },
+        { where: { id: chatId } }
+      );
+
+      // Check if the update was successful
+      if (updatedChat[0] === 0) {
+        return res.status(500).json({ error: "Failed to update chat" });
+      }
+
+      // Return the created message
+      res.status(200).json(newMessage);
+    } catch (err) {
+      console.error("Upload error:", err);
+      res.status(500).json({ error: "File upload failed" });
+    }
+  }
+);
+
 module.exports = router;
