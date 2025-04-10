@@ -4,8 +4,11 @@ import React from "react";
 import { formatDateTimeString } from "../utils/dateUtils";
 import socket from "../socket";
 import { ChatResponse } from "./chat";
+import chatBackgroundImage from "../assets/chatBackground.png";
+import StatusIcon from "./statusIcon";
 
 interface Message {
+  status: string | null | undefined;
   id: string;
   messageContent: string;
   messageTimestamp: string;
@@ -34,15 +37,25 @@ const MainChat = ({
   const token = localStorage.getItem("token");
   const loggedInUserId = localStorage.getItem("userId");
   const [messages, setMessages] = useState<Message[]>([]);
-
-  useEffect(() => {
-    chatIdRef.current = chatId;
-  }, [chatId]);
-
+  //Socket logic + listener(handleMessage) for new messages recieved via socket event "new_message"
   useEffect(() => {
     if (!loggedInUserId || !chatId) return;
 
+    // Emit chat_closed for the previous chat, if any
+    if (chatIdRef.current !== chatId) {
+      // Emit the chat_closed event to notify that the user is leaving the previous chat
+      socket.emit("chat_closed", {
+        userId: loggedInUserId,
+        chatId: chatIdRef.current,
+      });
+    }
+
+    // Emit chat_opened for the new chat
     socket.emit("join", loggedInUserId);
+    socket.emit("chat_opened", { chatId, userId: loggedInUserId });
+
+    // Set the current chat reference to the new chat
+    chatIdRef.current = chatId;
 
     const handleMessage = (message: any) => {
       const isCurrentChat = message.chatId === chatIdRef.current;
@@ -71,6 +84,7 @@ const MainChat = ({
                 lastMessageContent: message.messageContent,
                 messageTimestamp: new Date().toISOString(),
                 messageStatus: message.status,
+                lastMessageSenderId: message.senderId,
               }
             : chat
         )
@@ -86,16 +100,45 @@ const MainChat = ({
       }
     };
 
+    const updateMessageStatus = (messageId: string, status: string) => {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.id === messageId ? { ...msg, status } : msg
+        )
+      );
+    };
+
     socket.on("new_message", (message) => {
       handleMessage(message);
     });
+
+    socket.on(
+      "message_status_updated",
+      ({ messageId, status, messageContent, senderId }) => {
+        // Update the specific message in state
+        updateMessageStatus(messageId, status);
+        const updatedMessage = messages.find((msg) => msg.id === messageId);
+
+        const updatedMessageForSidebar = {
+          id: messageId,
+          chatId,
+          messageContent,
+          senderId,
+          status,
+        };
+
+        handleMessage(updatedMessageForSidebar);
+      }
+    );
 
     return () => {
       socket.off("new_message", handleMessage);
     };
   }, [loggedInUserId, chatId]);
 
+  //Fetches Messages
   useEffect(() => {
+    chatIdRef.current = chatId;
     const fetchChatMessages = async () => {
       if (!chatId) return;
 
@@ -117,6 +160,7 @@ const MainChat = ({
         }
 
         const data: Message[] = await response.json();
+
         setMessages(data);
       } catch (error) {
         console.error("Error fetching chat messages:", error);
@@ -204,6 +248,7 @@ const MainChat = ({
       console.error("Error sending message:", error);
     }
   };
+
   const onImageUpload = async (file: File, clearInput: () => void) => {
     if (!file) return;
 
@@ -237,7 +282,14 @@ const MainChat = ({
   };
 
   return (
-    <div className="flex flex-col justify-end overflow-y-auto">
+    <div
+      className="flex flex-col justify-end overflow-y-auto"
+      style={{
+        backgroundImage: `url(${chatBackgroundImage})`,
+        backgroundSize: "contain", // This ensures the image covers the whole div
+        backgroundPosition: "center", // This centers the image
+      }}
+    >
       <div className="flex-grow flex flex-col overflow-y-scroll px-20 min-h-[39rem] pt-3">
         {messages.map((message, index) => (
           <div
@@ -246,7 +298,11 @@ const MainChat = ({
               message.sentByMe ? "justify-end" : "justify-start"
             }`}
           >
-            <div className="mb-2 bg-white rounded-md w-fit max-w-[80%] px-4 flex flex-col">
+            <div
+              className={`mb-2  rounded-md w-fit max-w-[80%] px-4 flex flex-col  ${
+                message.sentByMe ? "bg-green-200" : "bg-white"
+              }`}
+            >
               {message.type === "image" ? (
                 <img
                   src={message.messageContent}
@@ -254,9 +310,14 @@ const MainChat = ({
                   className="max-w-full rounded-md"
                 />
               ) : (
-                <p className="break-words whitespace-pre-wrap">
-                  {message.messageContent}
-                </p>
+                <div>
+                  <div className={`break-words flex whitespace-pre-wrap`}>
+                    <span className="mr-2">{message.messageContent}</span>
+                    {message.sentByMe && (
+                      <StatusIcon messageStatus={message.status} />
+                    )}
+                  </div>
+                </div>
               )}
               <small className="ml-auto w-full text-end">
                 {formatDateTimeString(message.messageTimestamp)}

@@ -29,7 +29,13 @@ async function getChatsWithLatestMessageAndUserData(loggedInUserId) {
         if (chat.lastMessageId) {
           lastMessage = await Message.findOne({
             where: { id: chat.lastMessageId },
-            attributes: ["messageContent", "status", "createdAt", "type"],
+            attributes: [
+              "messageContent",
+              "status",
+              "createdAt",
+              "type",
+              "senderId",
+            ],
           });
         }
 
@@ -49,6 +55,7 @@ async function getChatsWithLatestMessageAndUserData(loggedInUserId) {
           otherUserName: otherUser?.name || null,
           otherUserImage: otherUser?.image || null,
           otherUserId: otherUser?.id,
+          lastMessageSenderId: lastMessage?.senderId || null,
         };
       })
     );
@@ -64,7 +71,7 @@ async function getMessagesInChat(chatId, loggedInUserId) {
   try {
     const messages = await Message.findAll({
       where: { chatId: chatId },
-      attributes: ["messageContent", "createdAt", "senderId", "type"],
+      attributes: ["messageContent", "createdAt", "senderId", "type", "status"],
       order: [["createdAt", "ASC"]], // Order messages by timestamp
     });
 
@@ -74,6 +81,7 @@ async function getMessagesInChat(chatId, loggedInUserId) {
         messageTimestamp: message.createdAt,
         sentByMe: message.senderId === loggedInUserId,
         type: message.type,
+        status: message.status,
       };
     });
 

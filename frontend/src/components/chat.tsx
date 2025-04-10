@@ -5,6 +5,7 @@ import StatusIcon from "./statusIcon";
 import ChatMessages from "./chatMessage";
 import LogoutButton from "./LogoutButton";
 import { UserData } from "../types";
+import socket from "../socket";
 
 export interface ChatResponse {
   chatId: string;
@@ -16,6 +17,7 @@ export interface ChatResponse {
   otherUserImage: string | null;
   otherUserId: string | null;
   hasUnread?: boolean;
+  lastMessageSenderId?: string | null;
 }
 
 function Chat() {
@@ -26,10 +28,12 @@ function Chat() {
   const [selectedUserImage, setSelectedUserImage] = useState<string | null>(
     null
   );
+  const [isChatSelected, setIsChatSelected] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState<UserData | null>(null);
   const loggedInUserId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
 
+  //Handles real-time updates to sidebar (when a new message arrives)
   const handleIncomingMessage = (message: {
     chatId: string;
     messageContent: string;
@@ -53,8 +57,7 @@ function Chat() {
     );
   };
 
-  const [isChatSelected, setIsChatSelected] = useState(false);
-
+  //Fetch SIdebar data
   useEffect(() => {
     const getData = async () => {
       try {
@@ -86,6 +89,15 @@ function Chat() {
     getData();
   }, []);
 
+  //Emits user_online event so the users messages are marked as delivered
+  useEffect(() => {
+    if (loggedInUserId) {
+      socket.emit("user_online", loggedInUserId);
+    }
+  }, [loggedInUserId]);
+
+  //Updates selected chat info and clears unread badge
+  // i.e. when user changes chat, selectedchat info is changed here which is then passed down
   const handleChatClick = (
     chatId: string,
     userName: string,
@@ -103,10 +115,6 @@ function Chat() {
     );
   };
 
-  const chatMessagesBackgroundColor = isChatSelected
-    ? "bg-white"
-    : "bg-gray-300";
-
   return (
     <div className="flex h-[100vh] ">
       <div className="w-4/12 h-full flex-col ">
@@ -121,7 +129,6 @@ function Chat() {
           {chats.map((item) => (
             <div key={item.chatId}>
               <div
-                key={item.chatId}
                 className="p-4 cursor-pointer hover:bg-gray-100 flex items-center"
                 onClick={() =>
                   handleChatClick(
@@ -137,13 +144,20 @@ function Chat() {
                 <div className="flex flex-col flex-grow min-w-0 ml-2">
                   <div className="flex justify-between items-center">
                     <div className="text-md">{item.otherUserName}</div>
-                    <div className="text-xs text-nowrap">
+                    <div
+                      className={`text-xs text-nowrap ${
+                        item.hasUnread && "text-green-500 font-semibold"
+                      }`}
+                    >
                       {formatDateTimeString(item.messageTimestamp!)}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 w-full min-w-0">
-                    <StatusIcon messageStatus={item.messageStatus} />
+                  <div className={`flex items-center gap-2 w-full min-w-0`}>
+                    {item.lastMessageSenderId === loggedInUserId && (
+                      <StatusIcon messageStatus={item.messageStatus} />
+                    )}
+
                     <div
                       className="text-sm truncate overflow-hidden whitespace-nowrap flex-1 min-w-0"
                       title={item.lastMessageContent ?? undefined}
@@ -153,7 +167,9 @@ function Chat() {
                         : "Image"}
                     </div>
                     {item.hasUnread && (
-                      <div className="w-2 h-2 bg-red-500 rounded-full shrink-0"></div>
+                      <div className="w-5 h-5 bg-green-500 rounded-full shrink-0 text-white flex items-center justify-center text-sm">
+                        1
+                      </div>
                     )}
                   </div>
                 </div>
@@ -164,7 +180,7 @@ function Chat() {
           ))}
         </div>
       </div>
-      <div className={`w-8/12 h-full ${chatMessagesBackgroundColor}`}>
+      <div className="w-8/12 h-full">
         {selectedChatId && (
           <ChatMessages
             chatId={selectedChatId}

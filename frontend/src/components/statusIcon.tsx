@@ -1,9 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCheck,
-  faCheckDouble,
-  faEye,
-} from "@fortawesome/free-solid-svg-icons";
+import { IoCheckmarkDoneSharp } from "react-icons/io5";
+import { MdCheck } from "react-icons/md";
+
 import React from "react";
 
 interface StatusIconProps {
@@ -15,20 +13,22 @@ function StatusIcon({ messageStatus }: StatusIconProps) {
 
   switch (messageStatus) {
     case "sent":
-      statusIcon = <FontAwesomeIcon icon={faCheck} />;
+      statusIcon = <MdCheck />;
+
       break;
     case "delivered":
-      statusIcon = <FontAwesomeIcon icon={faCheckDouble} />;
+      statusIcon = <IoCheckmarkDoneSharp />;
+
       break;
     case "read":
-      statusIcon = <FontAwesomeIcon icon={faEye} />;
+      statusIcon = <IoCheckmarkDoneSharp color="blue" />;
       break;
     default:
       statusIcon = null;
       break;
   }
 
-  return <div className="mr-2">{statusIcon}</div>;
+  return <div className="mr-2 mt-1">{statusIcon}</div>;
 }
 
 export default StatusIcon;

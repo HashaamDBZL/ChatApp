@@ -1,22 +1,36 @@
 const express = require("express");
-const { Message } = require("../models/message.js");
+const { Message } = require("../models/Message.js");
 const { Chat } = require("../models/chat.js");
 const {
   getAllMessages,
   updateMessageSenderAndReceiver,
+  markMessagesAsDelivered,
+  markMessagesAsRead,
 } = require("../controllers/messageController.js");
 const { redisPublisher } = require("../config/redis");
 const authenticate = require("../middleware/authMiddleware.ts");
 const multer = require("multer");
 const upload = multer();
 const uploadToS3 = require("../utils/s3Upload.js");
+const { onlineUsers, userCurrentChats } = require("../utils.js");
 
 const router = express.Router();
 
 // POST: Send a message
 router.post("/messages", async (req, res) => {
   try {
-    const { chatId, senderId, recieverId, messageContent, status } = req.body;
+    const { chatId, senderId, recieverId, messageContent } = req.body;
+
+    let status = "sent";
+
+    if (onlineUsers.has(recieverId)) {
+      const currentChatOfReceiver = userCurrentChats.get(recieverId);
+      if (currentChatOfReceiver === chatId) {
+        status = "read";
+      } else {
+        status = "delivered";
+      }
+    }
 
     // Step 1: Create new message
     const newMessage = await Message.create({
@@ -24,7 +38,7 @@ router.post("/messages", async (req, res) => {
       senderId: senderId,
       recieverId: recieverId,
       messageContent: messageContent,
-      status: status || "sent",
+      status: status,
     });
 
     redisPublisher.publish("chat_channel", JSON.stringify(newMessage));
@@ -117,5 +131,38 @@ router.post(
     }
   }
 );
+
+router.put("/delivered", async (req, res) => {
+  const { userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ error: "userId is required" });
+  }
+
+  try {
+    await markMessagesAsDelivered(userId);
+    res.status(200).json({ message: "Messages marked as delivered" });
+  } catch (err) {
+    console.error("Failed to mark as delivered:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.put("/chats/:chatId/messages/read", async (req, res) => {
+  const { chatId } = req.params;
+  const { userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ error: "userId is required" });
+  }
+
+  try {
+    await markMessagesAsRead(chatId, userId);
+    res.status(200).json({ message: "Messages marked as read" });
+  } catch (err) {
+    console.error("Failed to mark as read:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 module.exports = router;
