@@ -69,12 +69,23 @@ async function markMessagesAsDelivered(userId, io) {
   for (const message of undeliveredMessages) {
     const senderId = message.senderId;
 
+    console.log("🔄 Updating message status for sender", {
+      messageId: message.id,
+      chatId: message.chatId,
+      status: "delivered",
+      senderId,
+      messageContent: message.messageContent,
+      type: message.type,
+    });
+
     if (senderId) {
       io.to(`user_${senderId}`).emit("message_status_updated", {
         messageId: message.id,
+        chatId: message.chatId,
         status: "delivered",
-        senderId: senderId,
+        senderId,
         messageContent: message.messageContent,
+        type: message.type,
       });
     } else {
       console.warn(

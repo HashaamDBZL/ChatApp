@@ -15,6 +15,7 @@ const MainChat = ({
   setChats,
   onIncomingMessage,
 }: mainChatProps) => {
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const chatIdRef = useRef<string | null>(chatId);
   const token = localStorage.getItem("token");
   const loggedInUserId = localStorage.getItem("userId");
@@ -41,8 +42,8 @@ const MainChat = ({
     chatIdRef.current = chatId;
 
     const handleMessage = (message: any) => {
-      console.log("Inside handle message", message);
       const isCurrentChat = message.chatId === chatIdRef.current;
+      console.log(message.messageContent);
 
       if (isCurrentChat) {
         setMessages((prev) => {
@@ -97,26 +98,35 @@ const MainChat = ({
 
     socket.on("new_message", (message) => {
       handleMessage(message);
+      console.log(message, "inside handle message body");
     });
 
-    socket.on(
-      "message_status_updated",
-      ({ messageId, status, messageContent, senderId }) => {
-        // Update the specific message in state
-        updateMessageStatus(messageId, status);
-        const updatedMessage = messages.find((msg) => msg.id === messageId);
+    socket.on("message_status_updated", (data) => {
+      const {
+        messageId,
+        status,
+        chatId: updatedChatId,
+        messageContent,
+        senderId,
+        type,
+      } = data;
 
-        const updatedMessageForSidebar = {
-          id: messageId,
-          chatId,
-          messageContent,
-          senderId,
-          status,
-        };
-
-        handleMessage(updatedMessageForSidebar);
+      if (!updatedChatId || !messageContent || !type) {
+        console.warn("Incomplete message_status_updated payload", data);
+        return;
       }
-    );
+
+      updateMessageStatus(messageId, status);
+
+      handleMessage({
+        id: messageId,
+        chatId: updatedChatId,
+        messageContent,
+        senderId,
+        status,
+        type,
+      });
+    });
 
     return () => {
       socket.off("new_message", handleMessage);
@@ -269,6 +279,10 @@ const MainChat = ({
     }
   };
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+  }, [messages]);
+
   return (
     <div
       className="flex flex-col justify-end overflow-y-auto"
@@ -316,6 +330,7 @@ const MainChat = ({
             </div>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
       <div className="w-full flex bg-gray-100">
         <InputComponent
