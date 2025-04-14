@@ -1,5 +1,5 @@
 const express = require("express");
-const { Message } = require("../models/Message.js");
+const { Message } = require("../models/message.js");
 const { Chat } = require("../models/chat.js");
 const {
   getAllMessages,

@@ -1,2 +1,4 @@
-export const onlineUsers = new Map(); // userId -> socketId
-export const userCurrentChats = new Map(); // userId -> currentlyOpenedChatId
+ const onlineUsers = new Map(); // userId -> socketId
+ const userCurrentChats = new Map(); // userId -> currentlyOpenedChatId
+
+module.exports = { onlineUsers, userCurrentChats };

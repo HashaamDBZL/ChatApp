@@ -89,12 +89,33 @@ function Chat() {
       }
     };
 
+    const getLoggedInUser =  async ()=>{
+      try {
+      console.log(loggedInUserId)
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/users/users/${loggedInUserId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+
+          }
+        );
+        const data = await response.json()
+        setLoggedInUser(data)
+        console.log(loggedInUser)
+
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
     getData();
+    getLoggedInUser();
   }, []);
 
-  useEffect(() => {
-    console.table(chats);
-  }, [chats]);
 
   //Emits user_online event so the users messages are marked as delivered
   useEffect(() => {
@@ -127,10 +148,19 @@ function Chat() {
       <div className="w-4/12 h-full flex-col ">
         <div className="h-24 flex items-center text-start px-12 text-xl font-bold shrink-0 justify-between">
           <span>Chat</span>
-          <div className="flex items-center">
-            <div className="mr-2">{loggedInUser?.name}</div>
-            <LogoutButton />
-          </div>
+          <div className="flex items-center text-xs ">
+                    <div
+                    className="rounded-full h-8 w-8 mr-8 bg-cover bg-center flex shrink-0"
+                    style={{
+                      backgroundImage:`url(${loggedInUser?.image})` 
+                    }}
+                    ></div>
+                    <div className="flex flex-col w-24">
+
+                    <div >{loggedInUser?.name}</div>
+                    <LogoutButton />
+                    </div>
+                    </div>
         </div>
         <div className="flex flex-col flex-1 overflow-y-auto">
           {chats.map((item) => (

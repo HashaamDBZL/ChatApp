@@ -1,10 +1,10 @@
 const { Sequelize } = require("sequelize");
-const { User } = require("./models/User"); // Adjust path if needed
-const { Chat } = require("./models/Chat"); // Adjust path if needed
-const { Message } = require("./models/Message"); // Adjust path if needed
+const { User } = require("./models/user"); // Adjust path if needed
+const { Chat } = require("./models/chat"); // Adjust path if needed
+const { Message } = require("./models/message"); // Adjust path if needed
 
 const sequelize = new Sequelize(
-  "postgres://postgres:admin@localhost:5432/Chat"
+  "postgres://postgres:admin@localhost:5432/chatapp"
 );
 const seedDatabase = async () => {
   try {

@@ -1,6 +1,6 @@
 // server/models/index.js
-const { User } = require("./User");
-const { Message } = require("./Message");
+const { User } = require("./user.js");
+const { Message } = require("./message");
 const { Chat } = require("./chat");
 const { sequelize } = require("../config/db.js");
 
